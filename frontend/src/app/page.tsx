@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ImageSlider from "./components/carousel";
 
 export default function Home() {
   return (
@@ -23,6 +24,9 @@ export default function Home() {
           </div>
         </div>
       </header>
+      <div>
+        <ImageSlider />
+      </div>
     </div>
   );
 }
