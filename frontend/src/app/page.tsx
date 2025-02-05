@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ImageSlider from "./components/carousel";
+import Auth from "@/auth/auth";
 
 export default function Home() {
   return (
@@ -18,9 +19,9 @@ export default function Home() {
             />
           </div>
           <div className="ml-auto">
-            <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-              Connect Wallet
-            </button>
+            <div className="px-1 py-1 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+              <Auth />
+            </div>
           </div>
         </div>
       </header>
