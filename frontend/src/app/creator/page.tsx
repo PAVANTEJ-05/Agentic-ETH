@@ -1,19 +1,18 @@
-import Image from "next/image";
 import Link from "next/link";
-import ImageSlider from "./components/carousel";
-import Live from "./components/live";
-import Category from "./components/category";
-import Auth from "@/auth/auth";
-import Individual from "./components/individual";
-import More from "./components/more";
+import Image from "next/image";
+import ImageSlider from "../components/carousel";
+import Live from "../components/live";
+import Category from "../components/category";
+import Individual from "../components/individual";
+import More from "../components/more";
 
-export default function Home() {
+export default function Creator() {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="p-3 bg-white shadow-md fixed top-0 left-0 w-full z-10">
         <div className="flex items-center max-w-8xl mx-auto w-full px-4">
           <Link
-            href="/"
+            href="/creator"
             className="flex items-center gap-2 flex-shrink-0 mr-auto"
           >
             <Image src="/assets/logo.jpg" alt="logo" width={35} height={35} />
@@ -28,7 +27,7 @@ export default function Home() {
           </div>
           <div className="ml-auto">
             <div className="px-1 py-1 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-              <Auth />
+              Create a room
             </div>
           </div>
         </div>
