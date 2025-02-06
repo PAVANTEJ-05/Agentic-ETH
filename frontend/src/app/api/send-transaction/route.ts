@@ -8,14 +8,15 @@ export async function POST(req: NextRequest) {
   try {
     const privy = new PrivyClient(process.env.NEXT_PUBLIC_PRIVY_APP_ID || "a", process.env.NEXT_PUBLIC_APP_SECRET || 'b');
     
-    // const {to, amount } = await req.json();
+     const {to, amount } = await req.json();
     // if ( !to || !amount) {
     //   return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     // }
 
+    const amountInWei = ethers.utils.parseEther(amount.toString()).toHexString();
+    const money = amountInWei.slice(2,);
 
-    // const amountInWei = ethers.utils.parseEther(amount.toString()).toHexString();
-    // const money = amountInWei.slice(2,);
+    console.log("walletAPiiiiii   ", privy.walletApi);
 
     const response = await privy.walletApi.rpc({
       walletId: "ucssbyo8nmppwhomi802s3ep",
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
       params: {
         transaction: {
           to: '0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724',
-          value: .0005,
+          value: `0x${money}`,
           chainId: 84532,
         },
       },

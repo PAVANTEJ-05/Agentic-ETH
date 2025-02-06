@@ -1,11 +1,17 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import ImageSlider from "./components/carousel";
+import Live from "./components/live";
+import Category from "./components/category";
 import Auth from "@/auth/auth";
 import { usePrivy } from "@privy-io/react-auth";
 import { useState } from "react";
 import { log } from "console";
 
+import Individual from "./components/individual";
+import More from "./components/more";
+import CreateWallet from "./components/create-wallet";
 
 export default function Home() {
   const { login, logout, user, ready } = usePrivy();
@@ -40,6 +46,7 @@ export default function Home() {
       });
 
       const data = await response.json();
+      console.log("trnx successful ", data.txHash);
       if (response.ok) {
         setTxHash(data.txHash);
       } else {
@@ -55,17 +62,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="p-3 bg-white shadow-md">
+      <header className="p-3 bg-white shadow-md fixed top-0 left-0 w-full z-10">
         <div className="flex items-center max-w-8xl mx-auto w-full px-4">
-          <div className="flex items-center gap-2 flex-shrink-0 mr-auto">
+          <Link
+            href="/"
+            className="flex items-center gap-2 flex-shrink-0 mr-auto"
+          >
             <Image src="/assets/bg.png" alt="logo" width={60} height={40} />
             <h1 className="text-3xl font-bold text-gray-800">Kalesh</h1>
-          </div>
+          </Link>
           <div className="mx-4 w-1/4">
             <input
               type="text"
               placeholder="Search"
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             />
           </div>
           <div className="ml-auto">
@@ -82,13 +92,30 @@ export default function Home() {
             )}
           <button className="px-4 py-2 bg-cyan-700" onClick={createPrivyWallet}>Server wallet</button>
           {addr? (<p>connected</p>): (<p>failed tp </p>)}
+          <button className="px-4 py-2 bg-cyan-700" onClick={sendTransaction}>Send trnx</button>
           </div>
         </div>
+        <CreateWallet/>
       </header>
       <div>
-      <button className="px-4 py-2 bg-cyan-700" onClick={sendTransaction}>Send transaction</button>
         <ImageSlider />
+        <Live />
+        <More />
+        <Category />
+        <hr className="border-black" />
+        <Individual label="Gaming" />
+        <hr className="border-black" />
+        <Individual label="Sports" />
+        <hr className="border-black" />
+        <Individual label="Politics" />
+        <hr className="border-black" />
+        <Individual label="Movies" />
+        <hr className="border-black" />
+        <Individual label="Casual" />
+        <hr className="border-black pb-4" />
       </div>
+      
+      
     </div>
   );
 }
