@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/auth/providers";
+import Leaderboard from "./components/leaderboard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>{children}</Providers>
+        <Leaderboard />
+        <footer className="bg-white">
+          <h1 className="flex justify-center items-center text-black">
+            Copyright © 2025 Kalesh. All Rights Reserved.
+          </h1>
+        </footer>
       </body>
     </html>
   );

@@ -1,11 +1,13 @@
 import Card from "./card";
 import Image from "next/image";
-const Live = () => {
+
+interface IndividualProps {
+  label: string;
+}
+const Individual = ({ label }: IndividualProps) => {
   return (
-    <div className="pt-10 pb-4">
-      <div>
-        <h1 className=" flex text-[#CC5500] text-4xl font-bold pb-4">Live!!</h1>
-      </div>
+    <div className="py-4">
+      <h1 className="text-black text-4xl font-bold pb-4">{label}</h1>
       <div className="flex justify-around">
         <div>
           <Image src="/assets/w1.jpg" alt="logo" width={360} height={250} />
@@ -23,4 +25,4 @@ const Live = () => {
     </div>
   );
 };
-export default Live;
+export default Individual;

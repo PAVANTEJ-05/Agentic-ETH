@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import ImageSlider from "./components/carousel";
-import Leaderboard from "./components/leaderboard";
 import Live from "./components/live";
 import Category from "./components/category";
 import Auth from "@/auth/auth";
+import Individual from "./components/individual";
+import More from "./components/more";
 
 export default function Home() {
   return (
@@ -32,14 +33,22 @@ export default function Home() {
           </div>
         </div>
       </header>
-
-      <Leaderboard />
-
       <div className="pl-80 pt-16 pr-4">
         <ImageSlider />
         <Live />
-        <hr className="border-black" />
+        <More />
         <Category />
+        <hr className="border-black" />
+        <Individual label="Gaming" />
+        <hr className="border-black" />
+        <Individual label="Sports" />
+        <hr className="border-black" />
+        <Individual label="Politics" />
+        <hr className="border-black" />
+        <Individual label="Movies" />
+        <hr className="border-black" />
+        <Individual label="Casual" />
+        <hr className="border-black pb-4" />
       </div>
     </div>
   );
