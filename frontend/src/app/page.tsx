@@ -10,7 +10,7 @@ import More from "./components/more";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="p-3 bg-white shadow-md fixed top-0 left-0 w-full z-10">
+      {/* <header className="p-3 bg-white shadow-md fixed top-0 left-0 w-full z-10">
         <div className="flex items-center max-w-8xl mx-auto w-full px-4">
           <Link
             href="/"
@@ -32,7 +32,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
       <div className="pl-80 pt-16 pr-4">
         <ImageSlider />
         <Live />
