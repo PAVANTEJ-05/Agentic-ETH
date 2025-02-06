@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@privy-io/server-auth": "^1.18.5",
+    "dotenv": "^16.4.7"
+  }
+}
