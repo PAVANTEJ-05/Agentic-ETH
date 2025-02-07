@@ -1,189 +1,136 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract AiFightBetting is ReentrancyGuard, Ownable {
+    
+    struct Bet {
+        address bettor;
+        uint256 amount;
+    }
+    
     struct Fight {
+        address roomCreator;
         uint256 startTime;
         uint256 endTime;
         bool isActive;
         bool isFinalized;
-        uint8 winner; // Changed to uint8
+        uint8 winner;
         uint256 totalPool;
-        mapping(address => uint256) betsPersonality1;
-        mapping(address => uint256) betsPersonality2;
-        uint256 totalBetsPersonality1;
-        uint256 totalBetsPersonality2;
+        uint256 betAmountBot1;
+        uint256 betAmountBot2;
+        Bet[] betsPersonality1;
+        Bet[] betsPersonality2;
     }
 
-    mapping(bytes32 => Fight) public fights;
-    uint256 public minBetAmount = 0.01 ether;
-    uint256 public platformFee = 2; // 2% platform fee
-    uint256 public platformFeesAccumulated; // Track accumulated fees
-
-    event FightCreated(bytes32 indexed fightId, uint256 startTime, uint256 endTime);
-    event BetPlaced(bytes32 indexed fightId, address indexed better, uint256 amount, uint8 personality);
+    constructor() Ownable(msg.sender) {}
+    
+    Fight public currentFight;
+    uint256 public constant MIN_BET_AMOUNT = 0.01 ether;
+    uint256 public constant PLATFORM_FEE = 2; // 2%
+    uint256 public platformFeesAccumulated;
+    address platformAddress = address(0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724);
+    
+    event FightCreated(bytes32 indexed fightId, address indexed creator, uint256 startTime, uint256 endTime);
+    event BetPlaced(bytes32 indexed fightId, address indexed bettor, uint256 amount, uint8 personality);
     event FightFinalized(bytes32 indexed fightId, uint8 winner, uint256 totalPool);
-    event WinningsWithdrawn(bytes32 indexed fightId, address indexed winner, uint256 amount);
+    event UserPaid(address indexed bettor, uint256 amount);
 
-    // Removed redundant transferOwnership in constructor
-    constructor ()Ownable(msg.sender){}
+    function createFight(uint256 _duration) external returns (bytes32 fightId) {
+        
+        fightId = keccak256(abi.encodePacked(block.timestamp, msg.sender));
+        require(!currentFight.isActive, "Fight already exists");
+        
+        
+        require(!currentFight.isActive, "Fight already exists");
 
-    function createFight(bytes32 fightId, uint256 _startTime, uint256 _endTime) 
-        external 
-        onlyOwner 
-    {
-        require(_startTime > block.timestamp, "Start time must be in the future");
-        require(_endTime > _startTime, "End time must be after start time");
-        
-        Fight storage fight = fights[fightId];
-        require(!fight.isActive, "Fight already exists");
-        
-        fight.startTime = _startTime;
-        fight.endTime = _endTime;
-        fight.isActive = true;
-        
-        emit FightCreated(fightId, _startTime, _endTime);
+        currentFight.roomCreator = msg.sender;
+        currentFight.startTime = block.timestamp + (1 minutes);
+        currentFight.endTime = block.timestamp + (_duration * 1 minutes);
+        currentFight.isActive = true;
+        currentFight.isFinalized = false;
+        currentFight.winner = 0;
+        currentFight.totalPool = 0;
+        currentFight.betAmountBot1 = 0;
+        currentFight.betAmountBot2 = 0;
+
+        // No need to initialize dynamic struct arrays explicitly
+
+        emit FightCreated(fightId, msg.sender, currentFight.startTime, currentFight.endTime);
     }
 
-    function placeBet(bytes32 fightId, uint8 personality) 
-        external 
-        payable 
-        nonReentrant 
-    {
-        Fight storage fight = fights[fightId];
+    function placeBet(bytes32 fightId, uint8 personality) external payable nonReentrant {
+        require(msg.value >= MIN_BET_AMOUNT, "Bet amount too low");
+        require(personality == 1 || personality == 2, "Invalid personality");
+        
+        Fight storage fight = currentFight;
         require(fight.isActive, "Fight not active");
         require(!fight.isFinalized, "Fight already finalized");
         require(block.timestamp < fight.endTime, "Betting period ended");
-        require(msg.value >= minBetAmount, "Bet amount too low");
-        require(personality == 1 || personality == 2, "Invalid personality");
-
-        if (personality == 1) {
-            fight.betsPersonality1[msg.sender] += msg.value;
-            fight.totalBetsPersonality1 += msg.value;
-        } else {
-            fight.betsPersonality2[msg.sender] += msg.value;
-            fight.totalBetsPersonality2 += msg.value;
-        }
-
-        fight.totalPool += msg.value;
         
+        if (personality == 1) {
+            fight.betsPersonality1.push(Bet(msg.sender, msg.value));
+            fight.betAmountBot1 += msg.value;
+        } else {
+            fight.betsPersonality2.push(Bet(msg.sender, msg.value));
+            fight.betAmountBot2 += msg.value;
+        }
+        
+        fight.totalPool += msg.value;
         emit BetPlaced(fightId, msg.sender, msg.value, personality);
     }
 
-    function finalizeFight(bytes32 fightId, uint8 winningPersonality) 
-        external 
-        onlyOwner 
-    {
-        Fight storage fight = fights[fightId];
+    function finalizeFight(bytes32 fightId, uint8 winningPersonality) external onlyOwner {
+        Fight storage fight = currentFight;
         require(fight.isActive, "Fight not active");
         require(!fight.isFinalized, "Fight already finalized");
         require(block.timestamp >= fight.endTime, "Fight not ended");
         require(winningPersonality == 1 || winningPersonality == 2, "Invalid personality");
-        require(
-            (winningPersonality == 1 && fight.totalBetsPersonality1 > 0) ||
-            (winningPersonality == 2 && fight.totalBetsPersonality2 > 0),
-            "Winner has no bets"
-        );
 
         fight.isFinalized = true;
         fight.winner = winningPersonality;
         fight.isActive = false;
-
+        
         emit FightFinalized(fightId, winningPersonality, fight.totalPool);
+        claimWinnings();
     }
 
-    function claimWinnings(bytes32 fightId) 
-        external 
-        nonReentrant 
-    {
-        Fight storage fight = fights[fightId];
+    function claimWinnings() internal nonReentrant {
+        Fight storage fight = currentFight;
         require(fight.isFinalized, "Fight not finalized");
-        
-        uint256 betAmount;
-        uint256 totalWinningBets;
-        uint8 winningPersonality = fight.winner;
 
-        if (winningPersonality == 1) {
-            betAmount = fight.betsPersonality1[msg.sender];
-            totalWinningBets = fight.totalBetsPersonality1;
-            fight.betsPersonality1[msg.sender] = 0;
-        } else {
-            betAmount = fight.betsPersonality2[msg.sender];
-            totalWinningBets = fight.totalBetsPersonality2;
-            fight.betsPersonality2[msg.sender] = 0;
-        }
-        
-        require(betAmount > 0, "No winning bets");
+        uint256 totalWinningBets = (fight.winner == 1) ? fight.betAmountBot1 : fight.betAmountBot2;
         require(totalWinningBets > 0, "No bets on winning side");
 
-        uint256 winnings = (betAmount * fight.totalPool) / totalWinningBets;
-        uint256 fee = (winnings * platformFee) / 100;
-        uint256 payout = winnings - fee;
+        uint256 totalLosingBets = fight.totalPool - totalWinningBets;
+        uint256 roomCreatorFee = (totalLosingBets * 5) / 100;
+        uint256 platformFee = (totalLosingBets * PLATFORM_FEE) / 100;
+        uint256 payoutPool = fight.totalPool - platformFee - roomCreatorFee;
         
-        platformFeesAccumulated += fee;
-
-        (bool success, ) = msg.sender.call{value: payout}("");
-        require(success, "Transfer failed");
+        platformFeesAccumulated += platformFee;
+        (bool creatorPaid, ) = fight.roomCreator.call{value: roomCreatorFee}("");
+        require(creatorPaid, "Room creator fee transfer failed");
         
-        emit WinningsWithdrawn(fightId, msg.sender, payout);
+        Bet[] storage winningBets = (fight.winner == 1) ? fight.betsPersonality1 : fight.betsPersonality2;
+        
+        for (uint256 i = 0; i < winningBets.length; i++) {
+            uint256 reward = (winningBets[i].amount * payoutPool) / totalWinningBets;
+            (bool success, ) = winningBets[i].bettor.call{value: reward}("");
+            require(success, "Transfer failed");
+            winningBets[i].amount = 0;
+            emit UserPaid( winningBets[i].bettor, reward);
+        }
     }
-
-    function withdrawPlatformFees() 
-        external 
-        onlyOwner 
-    {
+    
+    function withdrawPlatformFees() external onlyOwner {
         uint256 fees = platformFeesAccumulated;
         require(fees > 0, "No fees available");
 
         platformFeesAccumulated = 0;
         (bool success, ) = owner().call{value: fees}("");
         require(success, "Transfer failed");
-    }
-
-    function getBetAmount(bytes32 fightId, address bettor, uint8 personality) 
-        public 
-        view 
-        returns (uint256) 
-    {
-        require(personality == 1 || personality == 2, "Invalid personality");
-        Fight storage fight = fights[fightId];
-        return personality == 1 ? fight.betsPersonality1[bettor] : fight.betsPersonality2[bettor];
-    }
-
-    function getFightDetails(bytes32 fightId) 
-        public 
-        view 
-        returns (
-            uint256 startTime,
-            uint256 endTime,
-            bool isActive,
-            bool isFinalized,
-            uint8 winner,
-            uint256 totalPool,
-            uint256 totalBets1,
-            uint256 totalBets2
-        ) 
-    {
-        Fight storage fight = fights[fightId];
-        startTime = fight.startTime;
-        endTime = fight.endTime;
-        isActive = fight.isActive;
-        isFinalized = fight.isFinalized;
-        winner = fight.winner;
-        totalPool = fight.totalPool;
-        totalBets1 = fight.totalBetsPersonality1;
-        totalBets2 = fight.totalBetsPersonality2;
-    }
-
-    function setMinBetAmount(uint256 _minBetAmount) external onlyOwner {
-        minBetAmount = _minBetAmount;
-    }
-
-    function setPlatformFee(uint256 _platformFee) external onlyOwner {
-        require(_platformFee <= 5, "Fee cannot exceed 5%");
-        platformFee = _platformFee;
     }
 }
