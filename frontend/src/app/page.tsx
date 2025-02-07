@@ -7,11 +7,12 @@ import Category from "./components/category";
 import Auth from "@/auth/auth";
 import { usePrivy } from "@privy-io/react-auth";
 import { useState } from "react";
-import { log } from "console";
+
 
 import Individual from "./components/individual";
 import More from "./components/more";
 import CreateWallet from "./components/create-wallet";
+import TransactionForm from "./components/transactionFor";
 
 export default function Home() {
   const { login, logout, user, ready } = usePrivy();
@@ -41,7 +42,7 @@ export default function Home() {
         body: JSON.stringify({
           
           to: "0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724", // Replace with recipient address
-          amount: "0.0005", // Amount in ETH
+          amount: "0.00025", // Amount in ETH
         }),
       });
 
@@ -92,7 +93,7 @@ export default function Home() {
             )}
           <button className="px-4 py-2 bg-cyan-700" onClick={createPrivyWallet}>Server wallet</button>
           {addr? (<p>connected</p>): (<p>failed tp </p>)}
-          <button className="px-4 py-2 bg-cyan-700" onClick={sendTransaction}>Send trnx</button>
+          
           </div>
         </div>
         <CreateWallet/>
@@ -115,7 +116,7 @@ export default function Home() {
         <hr className="border-black pb-4" />
       </div>
       
-      
+      <TransactionForm/>
     </div>
   );
 }

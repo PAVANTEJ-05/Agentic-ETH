@@ -26,22 +26,8 @@ contract AiFightBetting is ReentrancyGuard, Ownable {
         Bet[] betsPersonality2;
     }
 
-    constructor() Ownable(msg.sender) {}
-    
-    Fight public currentFight;
-    uint256 public constant MIN_BET_AMOUNT = 0.01 ether;
-    uint256 public constant PLATFORM_FEE = 2; // 2%
-    uint256 public platformFeesAccumulated;
-    address platformAddress = address(0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724);
-    
-    event FightCreated(bytes32 indexed fightId, address indexed creator, uint256 startTime, uint256 endTime);
-    event BetPlaced(bytes32 indexed fightId, address indexed bettor, uint256 amount, uint8 personality);
-    event FightFinalized(bytes32 indexed fightId, uint8 winner, uint256 totalPool);
-    event UserPaid(address indexed bettor, uint256 amount);
-
-    function createFight(uint256 _duration) external returns (bytes32 fightId) {
-        
-        fightId = keccak256(abi.encodePacked(block.timestamp, msg.sender));
+    constructor(uint256 _duration) Ownable(msg.sender) {
+         //fightId = keccak256(abi.encodePacked(block.timestamp, msg.sender));
         require(!currentFight.isActive, "Fight already exists");
         
         
@@ -59,10 +45,23 @@ contract AiFightBetting is ReentrancyGuard, Ownable {
 
         // No need to initialize dynamic struct arrays explicitly
 
-        emit FightCreated(fightId, msg.sender, currentFight.startTime, currentFight.endTime);
+        emit FightCreated(address(this), msg.sender, currentFight.startTime, currentFight.endTime);
     }
+    
+    Fight public currentFight;
+    uint256 public constant MIN_BET_AMOUNT = 0.01 ether;
+    uint256 public constant PLATFORM_FEE = 2; // 2%
+    uint256 public platformFeesAccumulated;
+    address platformAddress = address(0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724);
+    
+    event FightCreated(address deployed_address, address indexed creator, uint256 startTime, uint256 endTime);
+    event BetPlaced(address indexed bettor, uint256 amount, uint8 personality);
+    event FightFinalized( uint8 winner, uint256 totalPool);
+    event UserPaid(address indexed bettor, uint256 amount);
 
-    function placeBet(bytes32 fightId, uint8 personality) external payable nonReentrant {
+   
+
+    function placeBet(uint8 personality) external payable nonReentrant {
         require(msg.value >= MIN_BET_AMOUNT, "Bet amount too low");
         require(personality == 1 || personality == 2, "Invalid personality");
         
@@ -80,10 +79,10 @@ contract AiFightBetting is ReentrancyGuard, Ownable {
         }
         
         fight.totalPool += msg.value;
-        emit BetPlaced(fightId, msg.sender, msg.value, personality);
+        emit BetPlaced( msg.sender, msg.value, personality);
     }
 
-    function finalizeFight(bytes32 fightId, uint8 winningPersonality) external onlyOwner {
+    function finalizeFight( uint8 winningPersonality) external onlyOwner {
         Fight storage fight = currentFight;
         require(fight.isActive, "Fight not active");
         require(!fight.isFinalized, "Fight already finalized");
@@ -94,7 +93,7 @@ contract AiFightBetting is ReentrancyGuard, Ownable {
         fight.winner = winningPersonality;
         fight.isActive = false;
         
-        emit FightFinalized(fightId, winningPersonality, fight.totalPool);
+        emit FightFinalized( winningPersonality, fight.totalPool);
         claimWinnings();
     }
 
@@ -125,12 +124,12 @@ contract AiFightBetting is ReentrancyGuard, Ownable {
         }
     }
     
-    function withdrawPlatformFees() external onlyOwner {
-        uint256 fees = platformFeesAccumulated;
-        require(fees > 0, "No fees available");
+    // function withdrawPlatformFees() external onlyOwner {
+    //     uint256 fees = platformFeesAccumulated;
+    //     require(fees > 0, "No fees available");
 
-        platformFeesAccumulated = 0;
-        (bool success, ) = owner().call{value: fees}("");
-        require(success, "Transfer failed");
-    }
+    //     platformFeesAccumulated = 0;
+    //     (bool success, ) = owner().call{value: fees}("");
+    //     require(success, "Transfer failed");
+    // }
 }
