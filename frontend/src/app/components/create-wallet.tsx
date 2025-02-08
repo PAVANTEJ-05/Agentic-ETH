@@ -13,7 +13,6 @@ export default function CreateWallet() {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [close, setClose] = useState(true);
 
   async function handleCreateWallet() {

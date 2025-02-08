@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import Button from "./common-components/button";
 
 const CenteredWalletModal = ({
   walletInfo,
@@ -45,13 +45,13 @@ const CenteredWalletModal = ({
             <div className="p-6">
               <div className="flex flex-col items-center">
                 <Image
-                  className="w-24 h-24 mb-3 rounded-full shadow-lg"
+                  className="mb-3 rounded-full shadow-lg"
                   src="/assets/naruto.jpg"
                   alt="Wallet Avatar"
-                  width={96}
-                  height={96}
+                  width={200}
+                  height={200}
                 />
-                <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
+                <h5 className="mb-1 text-2xl font-medium text-gray-900 dark:text-white">
                   Wallet Created Successfully
                 </h5>
                 <span className="text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -68,14 +68,9 @@ const CenteredWalletModal = ({
                       setAmount(value);
                     }}
                     placeholder="Enter ETH amount"
-                    className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    className="flex-1 px-4 py-2 border rounded-xl outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
-                  <button
-                    onClick={handleFundWallet}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Fund Wallet
-                  </button>
+                  <Button onClick={handleFundWallet} text="Fund Wallet"/>
                 </div>
               </div>
             </div>
@@ -85,7 +80,6 @@ const CenteredWalletModal = ({
     </>
   );
 
-  // Use createPortal to render the modal at the document root
   return createPortal(modalContent, document.body);
 };
 
