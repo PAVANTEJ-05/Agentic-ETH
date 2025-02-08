@@ -2,11 +2,15 @@
 
 import { useState } from "react";
 import { usePrivy } from "@privy-io/react-auth";
+import { ethers } from "ethers";
 
 export default function CreateWallet() {
   const { user, authenticated } = usePrivy();
   const [walletInfo, setWalletInfo] = useState<{ walletId: string; walletAddress: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
 
   async function handleCreateWallet() {
     if (!authenticated || !user?.id) {
@@ -37,6 +41,45 @@ export default function CreateWallet() {
     setLoading(false);
   }
 
+  const handleFundWallet = async () => {
+    try {
+      // Check if MetaMask is installed
+      if (!window.ethereum) {
+        alert('Please install MetaMask to use this feature');
+        return;
+      }
+
+      // Request account access
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      
+      const amountInWei = ethers.utils.parseEther(amount.toString()).toHexString();
+      const money = amountInWei.slice(2,);
+
+      // Prepare transaction parameters
+      if(walletInfo){
+          const transactionParameters = {
+          to: walletInfo.walletAddress || "s", // Recipient address
+          from: window.ethereum.selectedAddress, // Current user's address
+          value: `0x${money}`, // Amount in hex (user will input in MetaMask)
+        };
+
+        // Send transaction request to MetaMask
+        await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [transactionParameters],
+      });
+      }
+
+      setAmount('');
+      alert('Transaction initiated successfully!');
+      
+
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Transaction failed. Please try again.');
+    }
+  };
+
   return (
     <div>
       <button
@@ -48,13 +91,7 @@ export default function CreateWallet() {
       </button>
 
       {walletInfo && (
-        // <div className="fixed h-1/3 w-1/3 top-10 left-1/2 transform -translate-x-1/2 bg-green-600 p-4 rounded shadow-md">
-        //   <p className="font-bold  text-green-500">Wallet Created!</p>
-        //   <p className="text-cyan-700"><strong className="text-gray-800">ID:</strong> {walletInfo.walletId}</p>
-        //   <p><strong>Address:</strong> {walletInfo.walletAddress}</p>
-        //   <button onClick={() => setWalletInfo(null)} className="mt-2 bg-red-500 text-white px-2 py-1 rounded">Close</button>
-        // </div>
-        
+       
 
         <div className="w-full max-w-sm bg-white border mx-auto border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
             <div className="flex justify-end px-4 pt-4">
@@ -84,8 +121,19 @@ export default function CreateWallet() {
                 <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">Wallet Created Succesfully</h5>
                 <span className="text-sm text-gray-500 dark:text-gray-400">{walletInfo.walletAddress}</span>
                 <div className="flex mt-4 md:mt-6">
-                    <a href="#" className="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Fund Wallet</a>
-                    <a href="#" className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Message</a>
+                <input
+                    type="text"
+                    value={amount}
+                    onChange={(e)=>{
+                        const value = e.target.value.replace(/[^0-9.]/g, '');
+                        setAmount(value);
+                      
+                    }}
+                    placeholder="Enter ETH amount"
+                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300 outline-none"
+                  />
+                    <button onClick={handleFundWallet} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Fund Wallet</button>
+
                 </div>
             </div>
         </div>
