@@ -1,7 +1,8 @@
-"use client";
+"use client"
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const images = ["/assets/1.jpg", "/assets/2.jpg", "/assets/3.jpg"];
 
@@ -11,45 +12,83 @@ const ImageSlider = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-        setFade(true);
-      }, 500);
-    }, 3000);
+      handleNext();
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [currentIndex]);
+
+  const handleNext = () => {
+    setFade(false);
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      setFade(true);
+    }, 300);
+  };
+
+  const handlePrev = () => {
+    setFade(false);
+    setTimeout(() => {
+      setCurrentIndex((prevIndex) =>
+        prevIndex === 0 ? images.length - 1 : prevIndex - 1
+      );
+      setFade(true);
+    }, 300);
+  };
 
   return (
-    <div className="w-full max-w-2xl mx-auto relative mt-4">
-      <div className="overflow-hidden rounded-lg">
-        <Image
-          src={images[currentIndex]}
-          alt={`Slide ${currentIndex + 1}`}
-          width={800}
-          height={400}
-          className={`transition-opacity duration-500 ${
-            fade ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      </div>
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            className={`w-3 h-3 rounded-full ${
-              index === currentIndex ? "bg-white" : "bg-gray-400"
+    <div className="relative w-full max-w-5xl mx-auto mt-6 group">
+      <div className="relative overflow-hidden rounded-xl shadow-xl">
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent z-10"></div>
+
+        {/* Main Image */}
+        <div className="aspect-[16/9] relative">
+          <Image
+            src={images[currentIndex]}
+            alt={`Slide ${currentIndex + 1}`}
+            fill
+            className={`object-cover transition-opacity duration-300 ${
+              fade ? "opacity-100" : "opacity-0"
             }`}
-            onClick={() => {
-              setFade(false);
-              setTimeout(() => {
-                setCurrentIndex(index);
-                setFade(true);
-              }, 500);
-            }}
+            priority
           />
-        ))}
+        </div>
+
+        {/* Navigation Arrows */}
+        <button
+          onClick={handlePrev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/30 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/50"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <button
+          onClick={handleNext}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/30 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/50"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
+        {/* Indicators */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentIndex
+                  ? "w-6 bg-white"
+                  : "bg-white/50 hover:bg-white/80"
+              }`}
+              onClick={() => {
+                setFade(false);
+                setTimeout(() => {
+                  setCurrentIndex(index);
+                  setFade(true);
+                }, 300);
+              }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
