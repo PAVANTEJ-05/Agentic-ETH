@@ -70,7 +70,7 @@ export default function Room() {
         </div>
       </div>
       <div>
-        <button className="text-black text-3xl border-black p-5">
+        <button className="text-black rounded-xl text-3xl bg-green-500  hover:bg-green-600 border-black p-5">
           Create room
         </button>
       </div>
