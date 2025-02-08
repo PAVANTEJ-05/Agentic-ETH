@@ -14,7 +14,6 @@ const io = new Server(server, {
   },
 });
 
-// Store messages in memory (resets on server restart)
 let rooms = {};
 
 io.on("connection", (socket) => {
@@ -22,8 +21,8 @@ io.on("connection", (socket) => {
 
   socket.on("join_room", (roomId) => {
     socket.join(roomId);
-    if (!rooms[roomId]) rooms[roomId] = []; // Initialize room if not exists
-    socket.emit("prev_msgs", rooms[roomId]); // Send previous messages when joining
+    if (!rooms[roomId]) rooms[roomId] = []; 
+    socket.emit("prev_msgs", rooms[roomId]); 
     console.log(`User ${socket.id} joined room: ${roomId}`);
   });
 
