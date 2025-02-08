@@ -12,12 +12,12 @@ export default function Auth() {
       {user ? (
         <div>
           <p>Connected as: {user.wallet?.address}</p>
-          <button onClick={logout} className="px-4 py-2 bg-red-500 text-white">
+          <button onClick={logout} className="p-2 bg-red-500 text-white">
             Logout
           </button>
         </div>
       ) : (
-        <button onClick={login} className="px-4 py-2 bg-blue-500 text-white">
+        <button onClick={login} className="bg-blue-500 p-2 text-white">
           Login with Privy
         </button>
       )}
