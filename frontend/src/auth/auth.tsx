@@ -1,6 +1,7 @@
 "use client";
 
 import { usePrivy } from "@privy-io/react-auth";
+import Button from "@/app/components/common-components/button";
 
 export default function Auth() {
   const { login, logout, user, ready } = usePrivy();
@@ -11,15 +12,13 @@ export default function Auth() {
     <div>
       {user ? (
         <div>
-          <p>Connected as: {user.wallet?.address}</p>
-          <button onClick={logout} className="p-2 bg-red-500 text-white">
-            Logout
-          </button>
+          <Button
+            text={"Connected as: ..." + user.wallet?.address.slice(38, 42)}
+          />
+          <Button onClick={logout} text="Logout" />
         </div>
       ) : (
-        <button onClick={login} className="bg-blue-500 p-2 text-white">
-          Login with Privy
-        </button>
+        <Button onClick={login} text="Login with Privy" />
       )}
     </div>
   );

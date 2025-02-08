@@ -12,6 +12,7 @@ import More from "./components/more";
 import CreateWallet from "./components/create-wallet";
 import TransactionForm from "./components/transactionFor";
 import { CircleUserRound, Divide } from "lucide-react";
+import Navbar from "./components/common-components/navbar";
 
 export default function Home() {
   const { login, logout, user, ready } = usePrivy();
@@ -60,60 +61,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="p-3 bg-white shadow-md fixed top-0 left-0 w-full z-10">
-        <div className="flex items-center max-w-8xl mx-auto w-full px-4">
-          <Link
-            href="/"
-            className="flex items-center gap-2 flex-shrink-0 mr-auto"
-          >
-            <Image src="/assets/logo.jpg" alt="logo" width={35} height={35} />
-            <h1 className="text-3xl font-bold text-gray-800">Kalesh</h1>
-          </Link>
-          <div className="mx-4 w-1/4">
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-            />
-          </div>
-          <div className="flex ml-auto">
-            {!user ? (
-              <div className="text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-                <Auth />
-              </div>
-            ) : (
-              <div className="flex flex-row px-1 align-middle ">
-                {display && (
-                  <div>
-                    <h1 className="bg-slate-500 px-4 py-2">
-                      Connected as:{" "}
-                      {user.wallet?.address.slice(0, 4) +
-                        "..." +
-                        user.wallet?.address.slice(38, 42)}
-                    </h1>
-                    <button
-                      onClick={logout}
-                      className="px-4 py-2 bg-red-500 text-white"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-                {!display && <div></div>}
-                <Link href="/room" className="text-white bg-green-500">
-                  Create a room
-                </Link>
-                <CreateWallet />
-                <CircleUserRound
-                  size={40}
-                  onClick={() => setDisplay(!display)}
-                  className="text-black cursor-pointer"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      <Navbar user={user} setDisplay={setDisplay} logout={logout} display={display}/>
       <div className="pl-80 pt-16 pr-4">
         <div className="relative z-0">
           <ImageSlider />
