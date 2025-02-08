@@ -69,7 +69,7 @@ export default function Home() {
             href="/"
             className="flex items-center gap-2 flex-shrink-0 mr-auto"
           >
-            <Image src="/assets/bg.png" alt="logo" width={60} height={40} />
+            <Image src="/assets/logo.jpg" alt="logo" width={35} height={35} />
             <h1 className="text-3xl font-bold text-gray-800">Kalesh</h1>
           </Link>
           <div className="mx-4 w-1/4">
@@ -105,15 +105,15 @@ export default function Home() {
         <Category />
         <hr className="border-black" />
         <Individual label="Gaming" />
-        <hr className="border-black" />
+        <More />
         <Individual label="Sports" />
-        <hr className="border-black" />
+        <More />
         <Individual label="Politics" />
-        <hr className="border-black" />
+        <More />
         <Individual label="Movies" />
-        <hr className="border-black" />
+        <More />
         <Individual label="Casual" />
-        <hr className="border-black pb-4" />
+        <More />
       </div>
       
       <TransactionForm/>

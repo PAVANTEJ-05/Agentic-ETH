@@ -4,7 +4,9 @@ const Live = () => {
   return (
     <div className="pt-10 pb-4">
       <div>
-        <h1 className=" flex text-[#CC5500] text-4xl font-bold pb-4">Live!!</h1>
+        <h1 className=" flex bg-gradient-to-br from-[#FF5F6D] to-[#7D00FF] bg-clip-text text-transparent text-4xl font-bold pb-4">
+          Live!!
+        </h1>
       </div>
       <div className="flex justify-around">
         <div>
