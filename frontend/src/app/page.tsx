@@ -6,34 +6,31 @@ import Category from "./components/category";
 import { usePrivy } from "@privy-io/react-auth";
 import { useState } from "react";
 import Individual from "./components/individual";
-import More from "./components/more";
 import Navbar from "./components/common-components/navbar";
 
 export default function Home() {
   const { login, logout, user, ready } = usePrivy();
   const [display, setDisplay] = useState(false);
+  const categories = ["Gaming", "Sports", "Politics", "Movies", "Casual"];
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar user={user} setDisplay={setDisplay} logout={logout} display={display}/>
-      <div className="pl-80 pt-16 pr-4">
-        <div className="relative z-0">
+      <Navbar
+        user={user}
+        setDisplay={setDisplay}
+        logout={logout}
+        display={display}
+      />
+      <div className="pl-80 pt-16 px-6">
+        <div className="max-w-7xl mx-auto">
           <ImageSlider />
         </div>
         <Live />
-        <More />
         <Category />
         <hr className="border-black" />
-        <Individual label="Gaming" />
-        <More />
-        <Individual label="Sports" />
-        <More />
-        <Individual label="Politics" />
-        <More />
-        <Individual label="Movies" />
-        <More />
-        <Individual label="Casual" />
-        <More />
+        {categories.map((categorie,index) => (
+          <Individual label={categorie} key={index}/>
+        ))}
       </div>
     </div>
   );

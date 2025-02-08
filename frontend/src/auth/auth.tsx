@@ -13,7 +13,7 @@ export default function Auth() {
       {user ? (
         <div>
           <Button
-            text={"Connected as: ..." + user.wallet?.address.slice(38, 42)}
+            text={"Acc: ..." + user.wallet?.address.slice(38, 42)}
           />
           <Button onClick={logout} text="Logout" />
         </div>

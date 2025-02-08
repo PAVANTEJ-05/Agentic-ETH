@@ -33,15 +33,16 @@ const Navbar = ({ user, display, logout, setDisplay }) => {
               {display && (
                 <div className="flex gap-2">
                   <Button
-                    text={
-                      "Connected as: ..." + user.wallet?.address.slice(38, 42)
-                    }
+                    text={"Acc: ..." + user.wallet?.address.slice(38, 42)}
                   />
                   <Button text="Logout" onClick={logout} />
                 </div>
               )}
-              <Link href="/room" className="text-white bg-green-500 rounded-xl px-4 py-2">
-                Create a room
+              <Link
+                href="/room"
+                className="text-white bg-green-500 rounded-xl px-4 py-2"
+              >
+                Create Room
               </Link>
               <CreateWallet />
               <CircleUserRound
