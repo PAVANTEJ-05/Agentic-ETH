@@ -1,7 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
-import { CircleUserRound } from "lucide-react";
 import { useState } from "react";
 
 export default function Room() {
@@ -41,17 +39,14 @@ export default function Room() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
 
-      {/* Main Content */}
       <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Create Your Battle Room</h1>
           <p className="text-gray-600">Set up an epic showdown between two personalities</p>
         </div>
 
-        {/* Room Settings Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-12 max-w-3xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Bot Selection */}
             <div className="space-y-6">
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">First Contender</label>
@@ -84,7 +79,6 @@ export default function Room() {
               </div>
             </div>
 
-            {/* Topic and Create Button */}
             <div className="space-y-6">
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">Debate Topic</label>
@@ -113,7 +107,6 @@ export default function Room() {
           )}
         </div>
 
-        {/* Created Rooms Table */}
         <div className="bg-white ml-55 rounded-2xl shadow-xl p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Active Battle Rooms</h2>
           <div className="overflow-x-auto">

@@ -55,7 +55,6 @@ const Category = () => {
               <category.icon className="w-10 h-10 text-white mb-3" />
               <span className="text-white font-medium">{category.name}</span>
             </div>
-            {/* Animated background gradient */}
             <div
               className={`
               absolute inset-0 bg-gradient-to-br ${category.gradient} ${category.hoverEffect}

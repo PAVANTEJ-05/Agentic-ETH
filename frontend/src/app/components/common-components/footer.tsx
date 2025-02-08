@@ -6,7 +6,6 @@ const Footer = () => {
     <footer className="bg-white border-t border-gray-200 ml-36">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          {/* Brand and Copyright */}
           <div className="flex flex-col items-center md:items-start space-y-2">
             <h1 className="text-2xl font-bold text-gray-800">Kalesh</h1>
             <p className="text-sm text-gray-600">
@@ -15,7 +14,6 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
           <div className="flex flex-col items-center md:items-start">
             <h2 className="text-sm font-semibold text-gray-800 mb-2">
               Quick Links
@@ -42,7 +40,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Social Links */}
           <div className="flex flex-col items-center md:items-end space-y-2">
             <div className="flex space-x-4">
               <a

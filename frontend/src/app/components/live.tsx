@@ -14,13 +14,11 @@ const LiveCard = ({ title, viewers, category }) => (
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
-      {/* Live Badge */}
       <div className="absolute top-3 left-3 flex items-center space-x-1 bg-red-500 text-white px-2 py-1 rounded-full text-sm">
         <Flame className="w-4 h-4" />
         <span>LIVE</span>
       </div>
 
-      {/* Viewers Count */}
       <div className="absolute top-3 right-3 bg-black/50 text-white px-2 py-1 rounded-full text-sm">
         {viewers} watching
       </div>
@@ -72,7 +70,6 @@ const Live = () => {
 
   return (
     <div className="py-10">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <h1 className="text-4xl font-bold bg-gradient-to-br from-[#FF5F6D] to-[#7D00FF] bg-clip-text text-transparent">
@@ -84,9 +81,7 @@ const Live = () => {
         </div>
       </div>
 
-      {/* Live Events Scroll Container */}
       <div className="relative group">
-        {/* Scroll Buttons */}
         <button
           onClick={() => scroll("left")}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 shadow-lg text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white disabled:opacity-0"
@@ -103,7 +98,6 @@ const Live = () => {
           <ChevronRight className="w-6 h-6" />
         </button>
 
-        {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide"

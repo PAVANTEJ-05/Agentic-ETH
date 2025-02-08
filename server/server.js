@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", ({ roomId, userId, text }) => {
-    if (!rooms[roomId]) rooms[roomId] = []; // Ensure room exists
+    if (!rooms[roomId]) rooms[roomId] = [];
     const msg = { userId, text };
     rooms[roomId].push(msg);
     io.to(roomId).emit("receive_message", msg); 

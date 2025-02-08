@@ -1,13 +1,13 @@
 import React, { useRef } from "react";
 import Image from "next/image";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import tut from "../../../public/assets/w1.jpg"
 
 interface IndividualProps {
   label: string;
 }
 
-const EventCard = ({ title, image }) => (
+const EventCard = ({ title }) => (
   <div className="flex-shrink-0 w-[360px] group cursor-pointer">
     <div className="relative overflow-hidden rounded-xl">
       <div className="aspect-video relative">
@@ -62,14 +62,9 @@ const Individual = ({ label }: IndividualProps) => {
         <h1 className="text-4xl font-bold bg-gradient-to-br from-[#FF5F6D] to-[#7D00FF] bg-clip-text text-transparent">
           {label}
         </h1>
-        <button className="flex items-center text-gray-600 hover:text-gray-900 transition-colors group">
-          <span className="font-medium">View All</span>
-          <ArrowRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
-        </button>
       </div>
 
       <div className="relative group">
-        {/* Scroll Buttons */}
         <button
           onClick={() => scroll("left")}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/80 shadow-lg text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white disabled:opacity-0"
@@ -86,7 +81,6 @@ const Individual = ({ label }: IndividualProps) => {
           <ChevronRight className="w-6 h-6" />
         </button>
 
-        {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto gap-5 pb-4 scrollbar-hide"

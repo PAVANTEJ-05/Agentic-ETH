@@ -1,7 +1,6 @@
 import { Trophy, Medal } from "lucide-react";
 
 const Leaderboard = () => {
-  // Sample data structure with ranks and scores
   const leaderboardData = [
     { id: 1, name: "Alice", score: 2850, rank: 1 },
     { id: 2, name: "Bob", score: 2720, rank: 2 },

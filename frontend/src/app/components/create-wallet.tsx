@@ -27,7 +27,7 @@ export default function CreateWallet() {
       const response = await fetch("/api/create-wallet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }), // Send userId to server
+        body: JSON.stringify({ userId: user.id }),
       });
 
       const data = await response.json();
@@ -50,13 +50,11 @@ export default function CreateWallet() {
 
   const handleFundWallet = async () => {
     try {
-      // Check if MetaMask is installed
       if (!window.ethereum) {
         alert("Please install MetaMask to use this feature");
         return;
       }
 
-      // Request account access
       await window.ethereum.request({ method: "eth_requestAccounts" });
 
       const amountInWei = ethers.utils
@@ -64,15 +62,13 @@ export default function CreateWallet() {
         .toHexString();
       const money = amountInWei.slice(2);
 
-      // Prepare transaction parameters
       if (walletInfo) {
         const transactionParameters = {
-          to: walletInfo.walletAddress || "s", // Recipient address
-          from: window.ethereum.selectedAddress, // Current user's address
-          value: `0x${money}`, // Amount in hex (user will input in MetaMask)
+          to: walletInfo.walletAddress || "s",
+          from: window.ethereum.selectedAddress,
+          value: `0x${money}`,
         };
 
-        // Send transaction request to MetaMask
         await window.ethereum.request({
           method: "eth_sendTransaction",
           params: [transactionParameters],

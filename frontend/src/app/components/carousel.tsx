@@ -39,10 +39,8 @@ const ImageSlider = () => {
   return (
     <div className="relative w-full max-w-5xl mx-auto mt-6 group">
       <div className="relative overflow-hidden rounded-xl shadow-xl">
-        {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent z-10"></div>
 
-        {/* Main Image */}
         <div className="aspect-[16/9] relative">
           <Image
             src={images[currentIndex]}
@@ -55,7 +53,6 @@ const ImageSlider = () => {
           />
         </div>
 
-        {/* Navigation Arrows */}
         <button
           onClick={handlePrev}
           className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-black/30 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/50"
@@ -69,7 +66,6 @@ const ImageSlider = () => {
           <ChevronRight className="w-6 h-6" />
         </button>
 
-        {/* Indicators */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
           {images.map((_, index) => (
             <button

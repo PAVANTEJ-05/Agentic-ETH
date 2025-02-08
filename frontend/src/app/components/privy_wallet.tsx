@@ -13,15 +13,11 @@ const CenteredWalletModal = ({
 
   const modalContent = (
     <>
-      {/* Overlay */}
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
 
-      {/* Modal Container */}
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="min-h-screen px-4 flex items-center justify-center">
-          {/* Modal Content */}
           <div className="relative bg-white dark:bg-gray-800 w-full max-w-md rounded-lg">
-            {/* Close button */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -41,7 +37,6 @@ const CenteredWalletModal = ({
               </svg>
             </button>
 
-            {/* Wallet Content */}
             <div className="p-6">
               <div className="flex flex-col items-center">
                 <Image
@@ -58,7 +53,6 @@ const CenteredWalletModal = ({
                   {walletInfo.walletAddress}
                 </span>
 
-                {/* Fund Wallet Section */}
                 <div className="flex flex-col sm:flex-row gap-2 w-full max-w-sm">
                   <input
                     type="text"
