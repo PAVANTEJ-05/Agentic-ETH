@@ -45,9 +45,12 @@ export default function Creator() {
             />
           </div>
           <div className="ml-auto flex gap-3">
-            <div className="px-1 py-1 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+            <Link
+              href="./room"
+              className="px-1 py-1 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+            >
               Create a room
-            </div>
+            </Link>
             <div>
               <CircleUserRound size={34} className="text-black" />
             </div>
