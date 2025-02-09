@@ -1,17 +1,18 @@
 "use client";
-import { useState } from 'react';
-import Link from 'next/link';
-
-  
- 
+import { useState } from "react";
+import Link from "next/link";
+import Ballpit from "@/app/components/ui/ballPit";
 
 export default function Room() {
-  const [rooms, setRooms] = useState<{ 
-    id: string; 
-    link: string; 
-    bots: string[]; 
-    topic: string;
-  }[]>([]);  const [bot1, setBot1] = useState("");
+  const [rooms, setRooms] = useState<
+    {
+      id: string;
+      link: string;
+      bots: string[];
+      topic: string;
+    }[]
+  >([]);
+  const [bot1, setBot1] = useState("");
   const [bot2, setBot2] = useState("");
   const [topic, setTopic] = useState("");
   const [flag, setFlag] = useState(false);
@@ -36,13 +37,31 @@ export default function Room() {
   return (
     <div className="min-h-screen relative ">
 
-      
-      <main className="relative pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <main className="relative pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">  
+            <div
+        style={{
+          position: "absolute",
+          overflow: "hidden",
+          minHeight: "100vh",
+          maxHeight: "100vh",
+          width: "100%",
+        }}
+      >
+        <Ballpit
+          count={200}
+          gravity={0.8}
+          friction={0.8}
+          wallBounce={0.95}
+          followCursor={false}
+        />
+      </div>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#2563EB] mb-4">
             Create Your Battle Arena
           </h1>
-          <p className="text-gray-600">Place your bets on the ultimate showdown</p>
+          <p className="text-gray-600">
+            Place your bets on the ultimate showdown
+          </p>
         </div>
 
         <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl p-8 mb-12 max-w-3xl mx-auto border border-[#2563EB]/10">
@@ -57,7 +76,9 @@ export default function Room() {
                   onChange={(e) => setBot1(e.target.value)}
                   className="w-full p-3 rounded-xl border-2 border-[#2563EB]/20 bg-white text-gray-900 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
                 >
-                  <option value="" disabled hidden>Choose your fighter</option>
+                  <option value="" disabled hidden>
+                    Choose your fighter
+                  </option>
                   <option value="Elon Musk">Elon Musk</option>
                   <option value="Narendra Modi">Narendra Modi</option>
                   <option value="Donald Trump">Donald Trump</option>
@@ -74,7 +95,9 @@ export default function Room() {
                   onChange={(e) => setBot2(e.target.value)}
                   className="w-full p-3 rounded-xl border-2 border-[#2563EB]/20 bg-white text-gray-900 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
                 >
-                  <option value="" disabled hidden>Choose your fighter</option>
+                  <option value="" disabled hidden>
+                    Choose your fighter
+                  </option>
                   <option value="Elon Musk">Elon Musk</option>
                   <option value="Narendra Modi">Narendra Modi</option>
                   <option value="Donald Trump">Donald Trump</option>
@@ -109,14 +132,17 @@ export default function Room() {
           {flag && (
             <div className="mt-4 p-4 bg-red-50 border-l-4 border-[#EF4444] rounded-lg">
               <p className="text-[#EF4444]">
-                Choose your fighters wisely! Fill all fields and select different contenders.
+                Choose your fighters wisely! Fill all fields and select
+                different contenders.
               </p>
             </div>
           )}
         </div>
 
         <div className="bg-white/90 backdrop-blur-xl   rounded-2xl shadow-xl p-8 border border-[#2563EB]/10">
-          <h2 className="text-2xl font-bold text-[#2563EB] mb-6">Live Battle Arenas</h2>
+          <h2 className="text-2xl font-bold text-[#2563EB] mb-6">
+            Live Battle Arenas
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -137,7 +163,10 @@ export default function Room() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {rooms.map((r) => (
-                  <tr key={r.id} className="hover:bg-[#F8FAFC] transition-colors duration-200">
+                  <tr
+                    key={r.id}
+                    className="hover:bg-[#F8FAFC] transition-colors duration-200"
+                  >
                     <td className="px-6 py-4 text-sm text-gray-700">{r.id}</td>
                     <td className="px-6 py-4">
                       <Link
@@ -152,7 +181,9 @@ export default function Room() {
                         {r.bots.join(" 🆚 ")}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{r.topic}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {r.topic}
+                    </td>
                   </tr>
                 ))}
               </tbody>
