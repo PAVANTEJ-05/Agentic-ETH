@@ -1,19 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import CenteredWalletModal from "./privy_wallet";
 
+interface WalletInfo {
+  walletId: string;
+  walletAddress: string;
+  walletFund: number;
+}
+
 export default function CreateWallet() {
   const { user, authenticated } = usePrivy();
-  const [walletInfo, setWalletInfo] = useState<{
-    walletId: string;
-    walletAddress: string;
-  } | null>(null);
+  const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const [close, setClose] = useState(true);
+  const [exists, setExists] = useState(false);
+
+  // Check for existing wallet on component mount
+  useEffect(() => {
+    const savedWallet = localStorage.getItem("privyWallet");
+    if (savedWallet) {
+      const parsedWallet = JSON.parse(savedWallet);
+      setWalletInfo(parsedWallet);
+      setExists(true);
+      setClose(false);
+    }
+  }, []);
 
   async function handleCreateWallet() {
     if (!authenticated || !user?.id) {
@@ -22,6 +37,17 @@ export default function CreateWallet() {
     }
 
     setLoading(true);
+
+    // Check if wallet exists in localStorage
+    const savedWallet = localStorage.getItem("privyWallet");
+    if (savedWallet) {
+      const parsedWallet = JSON.parse(savedWallet);
+      setWalletInfo(parsedWallet);
+      setExists(true);
+      setClose(false);
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch("/api/create-wallet", {
@@ -32,10 +58,17 @@ export default function CreateWallet() {
 
       const data = await response.json();
       if (response.ok) {
-        setWalletInfo({
+        const newWalletInfo = {
           walletId: data.walletId,
           walletAddress: data.walletAddress,
-        });
+          walletFund: data.amount || 0,
+        };
+
+        // Save wallet info to localStorage
+        localStorage.setItem("privyWallet", JSON.stringify(newWalletInfo));
+
+        setWalletInfo(newWalletInfo);
+        setExists(true);
       } else {
         alert("Error: " + data.error);
       }
@@ -64,7 +97,7 @@ export default function CreateWallet() {
 
       if (walletInfo) {
         const transactionParameters = {
-          to: walletInfo.walletAddress || "s",
+          to: walletInfo.walletAddress,
           from: window.ethereum.selectedAddress,
           value: `0x${money}`,
         };
@@ -73,6 +106,14 @@ export default function CreateWallet() {
           method: "eth_sendTransaction",
           params: [transactionParameters],
         });
+
+        // Update wallet info in localStorage with new amount
+        const updatedWalletInfo = {
+          ...walletInfo,
+          walletFund: walletInfo.walletFund + parseFloat(amount),
+        };
+        localStorage.setItem("privyWallet", JSON.stringify(updatedWalletInfo));
+        setWalletInfo(updatedWalletInfo);
       }
 
       setAmount("");
@@ -85,7 +126,7 @@ export default function CreateWallet() {
 
   const handleCloseWallet = () => {
     setClose(true);
-  }
+  };
 
   return (
     <div>
@@ -94,7 +135,11 @@ export default function CreateWallet() {
         className="bg-blue-500 text-white py-2 px-4 rounded-xl"
         disabled={loading}
       >
-        {loading ? "Creating Wallet..." : "Create Wallet"}
+        {loading
+          ? "Creating Wallet..."
+          : exists
+          ? "Open Wallet"
+          : "Create Wallet"}
       </button>
 
       {walletInfo && !close && (

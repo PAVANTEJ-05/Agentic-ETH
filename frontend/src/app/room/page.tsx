@@ -137,7 +137,7 @@ export default function Room() {
 
   return (
     <div className="relative min-h-[calc(100vh-8rem)]">
-      <div className="absolute inset-0 z-[1]">
+      {/* <div className="absolute inset-0 z-[1]">
         <Ballpit
           count={450}
           gravity={1.2}
@@ -148,7 +148,7 @@ export default function Room() {
           maxSize={0.7}
           minSize={0.3}
         />
-      </div>
+      </div> */}
       <main className="relative z-[2] pt-24">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#2563EB] mb-4">
