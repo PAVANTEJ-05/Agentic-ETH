@@ -76,7 +76,7 @@ import { Heart, DollarSign } from 'lucide-react';
 import TextPressure from "@/app/components/textPressure";
 import LiveChat from "@/app/components/liveChat";
 import { useParams } from "next/navigation";
-import { getRoomById } from '@/db/mongodb';
+//import { getRoomById } from '@/db/mongodb';
 
 
 // Import ethers directly from the browser-compatible package
@@ -99,7 +99,7 @@ export default function BattleRoyale() {
 	const roomId = params.id; // The dynamic route parameter
 
 	if (typeof roomId === 'string') {
-	  const fight = getRoomById(roomId);
+	//  const fight = getRoomById(roomId);
 	//   console.log(fight);
 	} else {
 	  console.error('Invalid roomId:', roomId);
@@ -108,10 +108,10 @@ export default function BattleRoyale() {
 
   
 
- 
+ //'0x97490eb90f2be6d6cbaf75951105ff1113779669'
 
-  const contractAddress = '0x97490eb90f2be6d6cbaf75951105ff1113779669'
-const contractABI = [
+  const contractAddress = "0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724";
+  const contractABI = [
 	{
 		"inputs": [
 			{
@@ -513,7 +513,7 @@ const contractABI = [
 
           <div className="flex flex-col md:flex-row gap-4 p-4">
             <div className="flex-1">
-              <Integration fight={fight}/>
+              <Integration />
 
               <div className="max-w-5xl p-4">
                 <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50">
