@@ -16,11 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="select-none">
-      <body
-      >
+      <body>
         <Providers>{children}</Providers>
-         <Leaderboard />
-       
+        <Leaderboard />
         <Footer />
       </body>
     </html>

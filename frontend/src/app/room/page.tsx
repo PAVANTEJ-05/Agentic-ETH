@@ -35,18 +35,8 @@ export default function Room() {
   };
 
   return (
-    <div className="min-h-screen relative ">
-
-      <main className="relative pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">  
-            <div
-        style={{
-          position: "absolute",
-          overflow: "hidden",
-          minHeight: "100vh",
-          maxHeight: "100vh",
-          width: "100%",
-        }}
-      >
+    <div className="relative">
+      <div className="absolute inset-0 z-[1]">
         <Ballpit
           count={200}
           gravity={0.8}
@@ -55,6 +45,8 @@ export default function Room() {
           followCursor={false}
         />
       </div>
+
+      <main className="relative z-[2] pt-24">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#2563EB] mb-4">
             Create Your Battle Arena
@@ -139,7 +131,7 @@ export default function Room() {
           )}
         </div>
 
-        <div className="bg-white/90 backdrop-blur-xl   rounded-2xl shadow-xl p-8 border border-[#2563EB]/10">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl p-8 border border-[#2563EB]/10 max-w-7xl mx-auto">
           <h2 className="text-2xl font-bold text-[#2563EB] mb-6">
             Live Battle Arenas
           </h2>
@@ -190,6 +182,7 @@ export default function Room() {
             </table>
           </div>
         </div>
+        <div className="h-20 w-full text-transparent">h</div>
       </main>
     </div>
   );
