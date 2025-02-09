@@ -26,7 +26,7 @@ export default function CreateWallet() {
       const parsedWallet = JSON.parse(savedWallet);
       setWalletInfo(parsedWallet);
       setExists(true);
-      setClose(false);
+      setClose(true);
     }
   }, []);
 

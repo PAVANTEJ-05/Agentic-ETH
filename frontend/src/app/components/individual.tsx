@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 const LiveIndicator = () => (
-  <div className="absolute top-4 left-4 flex items-center gap-3 z-20">
+  <div className="absolute top-4 left-4 flex items-center gap-3">
     <div className="flex items-center gap-2 bg-red-500 rounded-lg px-3 py-1.5">
       <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
       <span className="text-white text-sm font-medium">LIVE</span>
@@ -140,7 +140,7 @@ const Individual = ({ label }) => {
       <div className="relative group">
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white shadow-xl text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-gray-50 border border-gray-200"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-[4] p-3 rounded-full bg-white shadow-xl text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-gray-50 border border-gray-200"
           style={{ transform: "translate(-50%, -50%)" }}
         >
           <ChevronLeft className="w-7 h-7" />
@@ -148,7 +148,7 @@ const Individual = ({ label }) => {
 
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-white shadow-xl text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-gray-50 border border-gray-200"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-[4] p-3 rounded-full bg-white shadow-xl text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-gray-50 border border-gray-200"
           style={{ transform: "translate(50%, -50%)" }}
         >
           <ChevronRight className="w-7 h-7" />

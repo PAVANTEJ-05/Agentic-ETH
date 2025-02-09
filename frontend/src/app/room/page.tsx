@@ -4,12 +4,15 @@ import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import { IRoom } from "@/db/models/Room";
 import Ballpit from "../components/ui/ballPit";
-
+import { ethers } from "ethers";
+import contractABI from "./contractABI";
 // Types for the component
 interface Fighter {
   value: string;
   label: string;
 }
+
+const contractAddress = "0x97490eb90f2be6d6cbaf75951105ff1113779669";
 
 const FIGHTERS: Fighter[] = [
   { value: "Elon Musk", label: "Elon Musk" },
@@ -27,6 +30,8 @@ export default function Room() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userAddress, setUserAddress] = useState<string | null>(null);
+  const [provider, setProvider] =
+    useState<ethers.providers.Web3Provider | null>(null);
 
   // Connect wallet on component mount
   useEffect(() => {
@@ -37,25 +42,25 @@ export default function Room() {
   useEffect(() => {
     if (!userAddress) return;
 
-    const fetchRooms = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/rooms/${userAddress}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setRooms(data);
-      } catch (error) {
-        console.error("Error fetching rooms:", error);
-        setError("Failed to load rooms. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchRooms();
   }, [userAddress]);
+
+  const fetchRooms = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/rooms/${userAddress}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setRooms(data);
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+      setError("Failed to load rooms. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Connect MetaMask wallet
   const connectWallet = async () => {
@@ -65,14 +70,54 @@ export default function Room() {
     }
 
     try {
+      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
       setUserAddress(accounts[0]);
+      setProvider(web3Provider);
       setError("");
     } catch (error) {
       console.error("Error connecting to MetaMask:", error);
       setError("Failed to connect wallet. Please try again.");
+    }
+  };
+
+  const deployRoomContract = async (roomId: string) => {
+    if (!provider || !userAddress) {
+      throw new Error("Wallet not connected");
+    }
+
+    try {
+      const signer = provider.getSigner();
+      const mainContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
+
+      // Deploy new room contract through main contract
+      const tx = await mainContract.createRoom(roomId, bot1, bot2, topic, {
+        value: ethers.utils.parseEther("0.01"), // Assuming deployment requires 0.01 ETH
+        gasLimit: 3000000,
+      });
+
+      // Wait for deployment
+      const receipt = await tx.wait();
+
+      // Get new room contract address from event logs
+      const roomCreatedEvent = receipt.events?.find(
+        (event: any) => event.event === "RoomCreated"
+      );
+
+      if (!roomCreatedEvent) {
+        throw new Error("Room creation event not found");
+      }
+
+      return roomCreatedEvent.args.roomAddress;
+    } catch (error) {
+      console.error("Contract deployment failed:", error);
+      throw error;
     }
   };
 
@@ -102,12 +147,15 @@ export default function Room() {
       const roomId = uuidv4().slice(0, 6);
       const roomLink = `/battle-royale/${roomId}`;
 
+      const roomContractAddress = await deployRoomContract(roomId);
+
       const details = {
         id: roomId,
         link: roomLink,
         bots: [bot1, bot2],
         topic,
         userAddress,
+        roomContractAddress,
       };
 
       const response = await fetch("/api/rooms", {
@@ -269,6 +317,9 @@ export default function Room() {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
                     Topic
                   </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                    Contract Address
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -301,6 +352,9 @@ export default function Room() {
                       <td className="px-6 py-4">{room.bots.join(" 🆚 ")}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         {room.topic}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {room.contractAddress}
                       </td>
                     </tr>
                   ))
