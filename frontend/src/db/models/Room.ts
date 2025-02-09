@@ -21,4 +21,4 @@ const RoomSchema = new Schema({
 });
 
 export const Room =
-  mongoose.models.Room || mongoose.model<IRoom>("Room", RoomSchema);
+  mongoose.models.Room || mongoose.model<IRoom>("RoomList", RoomSchema);

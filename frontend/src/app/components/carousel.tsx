@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const images = ["/assets/1.jpg", "/assets/2.jpg", "/assets/3.jpg"];
+const images = ["/assets/w2.jpg" , "/assets/w2.jpg"];
 
 const ImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);

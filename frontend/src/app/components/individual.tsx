@@ -7,6 +7,9 @@ import {
   MessageCircle,
   Flame,
 } from "lucide-react";
+import Image from "next/image";
+import modi from "@/assets/modi.png";
+import trump from "@/assets/trump.png";
 
 const LiveIndicator = () => (
   <div className="absolute top-4 left-4 flex items-center gap-3">
@@ -43,7 +46,7 @@ const DebateCard = ({ title, participants, topic, engagementScore }) => (
             {/* First Participant */}
             <div className="text-center">
               <div className="w-20 h-20 rounded-full bg-blue-100 mx-auto mb-4 ring-4 ring-blue-200 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-                <Brain className="w-12 h-12 text-blue-500" />
+                <Image src={trump} alt="trump" />
               </div>
               <p className="text-gray-700 font-bold text-lg">
                 {participants[0]}
@@ -58,7 +61,8 @@ const DebateCard = ({ title, participants, topic, engagementScore }) => (
             {/* Second Participant */}
             <div className="text-center">
               <div className="w-20 h-20 rounded-full bg-purple-100 mx-auto mb-4 ring-4 ring-purple-200 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-                <Brain className="w-12 h-12 text-purple-500" />
+                {/* <Brain className="w-12 h-12 text-purple-500" /> */}
+                <Image src={modi} alt="modi" />
               </div>
               <p className="text-gray-700 font-bold text-lg">
                 {participants[1]}
