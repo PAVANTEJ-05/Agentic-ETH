@@ -38,11 +38,14 @@ export default function Room() {
     <div className="relative">
       <div className="absolute inset-0 z-[1]">
         <Ballpit
-          count={200}
-          gravity={0.8}
+          count={450}
+          gravity={1.6}
           friction={0.8}
-          wallBounce={0.95}
+          wallBounce={2}
           followCursor={false}
+          colors={[[230, 200, 255], 221, 100, 255]}
+          maxSize={0.7}
+          minSize={0.3}
         />
       </div>
 
