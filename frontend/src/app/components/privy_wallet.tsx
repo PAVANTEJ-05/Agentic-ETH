@@ -10,7 +10,7 @@ const CenteredWalletModal = ({
   onClose,
 }) => {
   if (!walletInfo) return null;
-
+  console.log(walletInfo)
   const modalContent = (
     <>
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />

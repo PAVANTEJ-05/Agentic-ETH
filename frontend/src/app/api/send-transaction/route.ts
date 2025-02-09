@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_APP_SECRET || "b"
     );
 
-    const { walletId, amount } = await req.json();
+    const { walletId, amount, to, metaData } = await req.json();
     // if ( !to || !amount) {
     //   return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     // }
@@ -23,13 +23,16 @@ export async function POST(req: NextRequest) {
 
     console.log("walletAPiiiiii   ", privy.walletApi);
 
+    
+
     const response = await privy.walletApi.rpc({
       walletId: walletId,
       method: "eth_sendTransaction",
       caip2: "eip155:84532",
       params: {
         transaction: {
-          to: "0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724",
+          to: to,
+          data: metaData,
           value: `0x${money}`,
           chainId: 84532,
         },
