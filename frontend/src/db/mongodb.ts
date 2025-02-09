@@ -65,3 +65,52 @@ export async function getRoomsByAddress(userAddress: string) {
     throw error;
   }
 }
+
+export async function getAllRooms(
+  options: {
+    limit?: number;
+    skip?: number;
+    sortBy?: keyof IRoom;
+    sortOrder?: "asc" | "desc";
+  } = {}
+) {
+  try {
+    await connectDB();
+
+    const {
+      limit = 50,
+      skip = 0,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = options;
+
+    const query = Room.find()
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec();
+
+    const [rooms, total] = await Promise.all([query, Room.countDocuments()]);
+
+    return {
+      rooms,
+      total,
+      hasMore: total > skip + limit,
+    };
+  } catch (error) {
+    console.error("Error fetching all rooms:", error);
+    throw error;
+  }
+}
+
+export async function getRoomById(roomId: string) {
+  try {
+    await connectDB();
+    const room = await Room.findOne({ id: roomId }).lean().exec();
+    return room;
+  } catch (error) {
+    console.error("Error fetching room by ID:", error);
+    throw error;
+  }
+}
