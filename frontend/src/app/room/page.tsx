@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { IRoom } from "@/db/models/Room";
 import Ballpit from "../components/ui/ballPit";
 import { ethers } from "ethers";
-
+import contractABI from "./contractABI";
 // Types for the component
 interface Fighter {
   value: string;
@@ -13,312 +13,6 @@ interface Fighter {
 }
 
 const contractAddress = "0x97490eb90f2be6d6cbaf75951105ff1113779669";
-const contractABI = [
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_duration",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			}
-		],
-		"name": "OwnableInvalidOwner",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "OwnableUnauthorizedAccount",
-		"type": "error"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "bettor",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint8",
-				"name": "personality",
-				"type": "uint8"
-			}
-		],
-		"name": "BetPlaced",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "deployed_address",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "creator",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "startTime",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "endTime",
-				"type": "uint256"
-			}
-		],
-		"name": "FightCreated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint8",
-				"name": "winner",
-				"type": "uint8"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "totalPool",
-				"type": "uint256"
-			}
-		],
-		"name": "FightFinalized",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "winningPersonality",
-				"type": "uint8"
-			}
-		],
-		"name": "finalizeFight",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "previousOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint8",
-				"name": "personality",
-				"type": "uint8"
-			}
-		],
-		"name": "placeBet",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "bettor",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "UserPaid",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "withdrawPlatformFees",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "currentFight",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "roomCreator",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "startTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "endTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "isActive",
-				"type": "bool"
-			},
-			{
-				"internalType": "bool",
-				"name": "isFinalized",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint8",
-				"name": "winner",
-				"type": "uint8"
-			},
-			{
-				"internalType": "uint256",
-				"name": "totalPool",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "betAmountBot1",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "betAmountBot2",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "MIN_BET_AMOUNT",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "PLATFORM_FEE",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "platformFeesAccumulated",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-]
 
 const FIGHTERS: Fighter[] = [
   { value: "Elon Musk", label: "Elon Musk" },
@@ -336,7 +30,8 @@ export default function Room() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userAddress, setUserAddress] = useState<string | null>(null);
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
+  const [provider, setProvider] =
+    useState<ethers.providers.Web3Provider | null>(null);
 
   // Connect wallet on component mount
   useEffect(() => {
@@ -350,7 +45,6 @@ export default function Room() {
     fetchRooms();
   }, [userAddress]);
 
-  
   const fetchRooms = async () => {
     try {
       setIsLoading(true);
@@ -403,25 +97,19 @@ export default function Room() {
       );
 
       // Deploy new room contract through main contract
-      const tx = await mainContract.createRoom(
-        roomId,
-        bot1,
-        bot2,
-        topic,
-        {
-          value: ethers.utils.parseEther("0.01"), // Assuming deployment requires 0.01 ETH
-          gasLimit: 3000000
-        }
-      );
+      const tx = await mainContract.createRoom(roomId, bot1, bot2, topic, {
+        value: ethers.utils.parseEther("0.01"), // Assuming deployment requires 0.01 ETH
+        gasLimit: 3000000,
+      });
 
       // Wait for deployment
       const receipt = await tx.wait();
-      
+
       // Get new room contract address from event logs
       const roomCreatedEvent = receipt.events?.find(
         (event: any) => event.event === "RoomCreated"
       );
-      
+
       if (!roomCreatedEvent) {
         throw new Error("Room creation event not found");
       }
@@ -467,7 +155,7 @@ export default function Room() {
         bots: [bot1, bot2],
         topic,
         userAddress,
-        contractAddress
+        contractAddress,
       };
 
       const response = await fetch("/api/rooms", {
