@@ -27,12 +27,12 @@ export default function BattleRoyale() {
 
           <div className="flex flex-col md:flex-row gap-4 p-4">
             <div className="flex-1">
-              <iframe
+              {/* <iframe
                 className="w-full aspect-video rounded-lg shadow"
                 src="https://www.youtube.com/embed/V_34qKgCNT4?si=JwSj0ByLgUuOL08e"
                 title="YouTube video player"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              ></iframe>
+              ></iframe> */}
 
               <div className="max-w-5xl p-4">
                 <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50">
