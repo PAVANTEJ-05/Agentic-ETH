@@ -6,7 +6,20 @@ import CreateWallet from "../create-wallet";
 import { CircleUserRound } from "lucide-react";
 import Button from "./button";
 
-const Navbar = ({ user, display, logout, setDisplay }) => {
+
+interface NavbarProps {
+  user: {
+    wallet?: {
+      address: string;
+    };
+  } | null;
+  display: boolean;
+  logout: () => void;
+  setDisplay: (display: boolean) => void;
+}
+
+
+const Navbar: React.FC<NavbarProps> = ({ user, display, logout, setDisplay }) => {
   return (
     <nav className="py-3 px-5 shadow-md fixed top-0 left-0 w-full z-10 h-[4.5 rem] backdrop-blur-2xl z-100">
       <div className="flex items-center w-full px-4 justify-between">
@@ -34,6 +47,7 @@ const Navbar = ({ user, display, logout, setDisplay }) => {
                 <div className="flex gap-2">
                   <Button
                     text={"Acc: ..." + user.wallet?.address.slice(38, 42)}
+                    onClick={() => {}}
                   />
                   <Button text="Logout" onClick={logout} />
                 </div>
