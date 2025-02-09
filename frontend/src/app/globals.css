@@ -10,3 +10,9 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
