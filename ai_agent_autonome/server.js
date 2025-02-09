@@ -9,6 +9,13 @@ import { MemoryCache } from "./memoryCache.js";
 import { evaluateBattle } from "./battleEvaluation.js";
 import { constructBattlePrompt, constructInitialMessage } from "./prompt.js";
 import { analyzeResponse } from "./analyza.js";
+import {
+  getDebateData,
+  formatDebateResponse,
+  getAllDebateIds,
+  getDebateHistory,
+  validateDebateAccess,
+} from "./debateManager.js";
 
 const app = express();
 app.use(express.json());
@@ -194,6 +201,53 @@ app.get("/battles/:debateId/evaluation", async (req, res) => {
   } catch (error) {
     console.error("Error getting evaluation:", error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all debates
+app.get("/debates", async (req, res) => {
+  try {
+    const debateIds = await getAllDebateIds(memoryCache);
+    const debates = await Promise.all(
+      debateIds.map(async (id) => {
+        const debate = await getDebateData(id, memoryCache);
+        return formatDebateResponse(debate);
+      })
+    );
+    res.json({ debates });
+  } catch (error) {
+    console.error("Error getting debates:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get specific debate history
+app.get("/debates/:debateId", async (req, res) => {
+  try {
+    const { debateId } = req.params;
+    const userId = req.headers["user-id"]; // Optional: for access control
+
+    // Optional: Validate access
+    if (userId) {
+      const hasAccess = await validateDebateAccess(
+        debateId,
+        userId,
+        memoryCache
+      );
+      if (!hasAccess) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+    }
+
+    const debateHistory = await getDebateHistory(debateId, memoryCache);
+    res.json(debateHistory);
+  } catch (error) {
+    console.error("Error getting debate history:", error);
+    if (error.message.includes("not found")) {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 
