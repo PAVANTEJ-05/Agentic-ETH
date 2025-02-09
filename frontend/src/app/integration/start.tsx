@@ -33,7 +33,7 @@ interface Message {
 type Character = "musk" | "tate";
 
 const API_URL = "https://autonome.alt.technology/ethagent-kwsbrp/message";
-const POLLING_INTERVAL = 15000; // 10 seconds
+const POLLING_INTERVAL = 15000;
 
 const TIMER_INTERVAL = 1000;
 
@@ -231,7 +231,6 @@ const Integration: React.FC = () => {
     }, TIMER_INTERVAL);
   }, [pollDebateStatus, updateLocalTimer]);
 
- 
   const handleRestartDebate = async (): Promise<void> => {
     setMessages([]);
     setDebateId(null);
@@ -253,6 +252,19 @@ const Integration: React.FC = () => {
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
+
+  useEffect(() => {
+    async function fetchEvaluation() {
+      const res = await fetch(
+        `https://autonome.alt.technology/ethagent-kwsbrp/battles/${debateIdRef.current}/evaluation`
+      );
+      const data = await res.json();
+      if (data.timeRemaining === 0) {
+        console.log(data);
+      }
+    }
+    fetchEvaluation();
+  }, []);
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
