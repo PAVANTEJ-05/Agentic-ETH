@@ -32,18 +32,12 @@ interface Message {
 
 type Character = "musk" | "tate";
 
-const API_URL = "https://autonome.alt.technology/ethagent-kwsbrp/message";
+const API_URL = "https://autonome.alt.technology/kaleshai-vmyjuu/message";
 const POLLING_INTERVAL = 15000;
 
 const TIMER_INTERVAL = 1000;
 
-// interface IntegrationProps {
-//   fight: object;
-// }
-
-const Integration: React.FC= () => {
-
- // console.log("props ", fight)
+const Integration: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +47,7 @@ const Integration: React.FC= () => {
   const [debateStatus, setDebateStatus] = useState<
     "active" | "completed" | null
   >(null);
+  const [result, setResult] = useState("");
 
   const messagePollingRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -69,7 +64,6 @@ const Integration: React.FC= () => {
     });
   }, []);
 
-  // request wrapper
   const makeApiRequest = async (url: string, options: RequestInit) => {
     try {
       const response = await fetch(url, {
@@ -108,9 +102,7 @@ const Integration: React.FC= () => {
         lastCharacterRef.current = data.context.lastCharacter;
         console.log("data.context.lastCharacter", data.context.lastCharacter);
       }
-      console.log("13");
 
-      // Add new messages if they exist
       if (data.messages && data.messages.length > 0) {
         setMessages((prev) => {
           const newMessage = {
@@ -143,7 +135,7 @@ const Integration: React.FC= () => {
   );
 
   const pollDebateStatus = useCallback(async () => {
-    if (!debateIdRef || debateStatusRef.current !== "active") {
+    if (!debateIdRef.current || debateStatusRef.current !== "active") {
       console.log("deabteId not found");
       return;
     }
@@ -154,6 +146,7 @@ const Integration: React.FC= () => {
 
       console.log("inside pollDebateStatus ");
       console.log("lastCharacterRef.current ", lastCharacterRef.current);
+      console.log("DebateId", debateIdRef.current);
       const data = (await makeApiRequest(API_URL, {
         method: "POST",
         body: JSON.stringify({
@@ -161,7 +154,7 @@ const Integration: React.FC= () => {
           userId: "user",
           context: {
             debateId: debateIdRef.current,
-            lastCharacter: lastCharacterRef.current,
+            lastCharacter: lastCharacterRef.current || "musk",
             characters: ["musk", "tate"],
           },
         }),
@@ -175,7 +168,7 @@ const Integration: React.FC= () => {
       setError(errorMessage);
       console.error(err);
     }
-  }, [debateStatus, lastCharacterRef, updateDebateState, debateId]);
+  }, [updateDebateState]);
 
   const initializeDebate = async (): Promise<void> => {
     try {
@@ -260,16 +253,16 @@ const Integration: React.FC= () => {
   };
 
   useEffect(() => {
-    async function fetchEvaluation() {
-      const res = await fetch(
-        `https://autonome.alt.technology/ethagent-kwsbrp/battles/${debateIdRef.current}/evaluation`
-      );
-      const data = await res.json();
-      if (data.timeRemaining === 0) {
-        console.log(data);
+    setTimeout(() => {
+      async function fetchEvaluation() {
+        const res = await fetch(
+          `https://autonome.alt.technology/kaleshai-vmyjuu/battles/${debateIdRef.current}/evaluation`
+        );
+        const data = await res.json();
+        setResult(data.evaluation);
       }
-    }
-    fetchEvaluation();
+      fetchEvaluation();
+    }, 185000);
   }, []);
 
   return (
@@ -283,22 +276,8 @@ const Integration: React.FC= () => {
                 Time Remaining: {formatTimeRemaining(timeRemaining)}
               </span>
             )}
-            <Button
-              onClick={handleRestartDebate}
-              variant="outline"
-              disabled={isLoading}
-            >
-              Restart Debate
-            </Button>
           </div>
         </div>
-
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
 
         {debateStatus === "completed" && (
           <Alert className="mb-4">
@@ -330,6 +309,7 @@ const Integration: React.FC= () => {
                   {getCharacterDisplayName(message.character)}
                 </div>
                 <div>{message.content}</div>
+                <div>{result}</div>
               </div>
             </div>
           ))}
