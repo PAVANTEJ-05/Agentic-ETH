@@ -1,139 +1,306 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { IRoom } from "@/db/models/Room";
+
+// Types for the component
+interface Fighter {
+  value: string;
+  label: string;
+}
+
+const FIGHTERS: Fighter[] = [
+  { value: "Elon Musk", label: "Elon Musk" },
+  { value: "Narendra Modi", label: "Narendra Modi" },
+  { value: "Donald Trump", label: "Donald Trump" },
+  { value: "Andrew Tate", label: "Andrew Tate" },
+];
 
 export default function Room() {
-  const [rooms, setRooms] = useState<{ 
-    id: string; 
-    link: string; 
-    bots: string[]; 
-    topic: string;
-  }[]>([]);
-  const [bot1, setBot1] = useState("");
-  const [bot2, setBot2] = useState("");
-  const [topic, setTopic] = useState("");
-  const [flag, setFlag] = useState(false);
+  // State with proper typing
+  const [rooms, setRooms] = useState<IRoom[]>([]);
+  const [bot1, setBot1] = useState<string>("");
+  const [bot2, setBot2] = useState<string>("");
+  const [topic, setTopic] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [userAddress, setUserAddress] = useState<string | null>(null);
 
-  const roomId = () => {
-    if(bot1 !== "" && bot2 !== "" && topic !== "" && bot1 !== bot2)
-       approve(); 
-    else setFlag(true);
-  }
+  // Connect wallet on component mount
+  useEffect(() => {
+    connectWallet();
+  }, []);
 
-  const approve = async () => {
-    const { v4 } = await import("uuid");
-    const rid = v4().slice(0, 6);
-    const roomLink = `./battle-royale/${rid}`;
+  // Fetch rooms when userAddress changes
+  useEffect(() => {
+    if (!userAddress) return;
 
-    const details = {
-      id: rid,
-      link: roomLink,
-      bots: [bot1, bot2],
-      topic: topic,
+    const fetchRooms = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/rooms/${userAddress}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setRooms(data);
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+        setError("Failed to load rooms. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    setRooms((prev) => [...prev, details]);
-    setFlag(false);
+    fetchRooms();
+  }, [userAddress]);
+
+  // Connect MetaMask wallet
+  const connectWallet = async () => {
+    if (typeof window.ethereum === "undefined") {
+      setError("Please install MetaMask to continue.");
+      return;
+    }
+
+    try {
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setUserAddress(accounts[0]);
+      setError("");
+    } catch (error) {
+      console.error("Error connecting to MetaMask:", error);
+      setError("Failed to connect wallet. Please try again.");
+    }
+  };
+
+  // Validate and create room
+  const createRoom = async () => {
+    // Reset error state
+    setError("");
+
+    // Validate inputs
+    if (!bot1 || !bot2 || !topic) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    if (bot1 === bot2) {
+      setError("Please select different fighters.");
+      return;
+    }
+
+    if (!userAddress) {
+      await connectWallet();
+      if (!userAddress) return;
+    }
+
+    try {
+      setIsLoading(true);
+      const roomId = uuidv4().slice(0, 6);
+      const roomLink = `/battle-royale/${roomId}`;
+
+      const details = {
+        id: roomId,
+        link: roomLink,
+        bots: [bot1, bot2],
+        topic,
+        userAddress,
+      };
+
+      const response = await fetch("/api/rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(details),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const savedRoom = await response.json();
+      setRooms((prev) => [...prev, savedRoom]);
+
+      // Reset form
+      setBot1("");
+      setBot2("");
+      setTopic("");
+    } catch (error) {
+      console.error("Error creating room:", error);
+      setError("Failed to create room. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="relative min-h-[calc(100vh-8rem)]">
+      <main className="relative z-[2] pt-24">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Create Your Battle Room</h1>
-          <p className="text-gray-600">Set up an epic showdown between two personalities</p>
+          <h1 className="text-4xl font-bold text-[#2563EB] mb-4">
+            Create Your Battle Arena
+          </h1>
+          <p className="text-gray-600">
+            Place your bets on the ultimate showdown
+          </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-12 max-w-3xl mx-auto">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl p-8 mb-12 max-w-3xl mx-auto border border-[#2563EB]/10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">First Contender</label>
-                <select 
-                  value={bot1} 
-                  onChange={(e) => setBot1(e.target.value)}
-                  className="w-full p-3 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                <label
+                  htmlFor="bot1"
+                  className="block text-gray-700 font-semibold mb-2"
                 >
-                  <option value="" disabled hidden>Select a personality</option>
-                  <option value="Elon Musk">Elon Musk</option>
-                  <option value="Narendra Modi">Narendra Modi</option>
-                  <option value="Donald Trump">Donald Trump</option>
-                  <option value="Andrew Tate">Andrew Tate</option>
+                  First Contender
+                </label>
+                <select
+                  id="bot1"
+                  value={bot1}
+                  onChange={(e) => setBot1(e.target.value)}
+                  className="w-full p-3 rounded-xl border-2 border-[#2563EB]/20 bg-white text-gray-900 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
+                  disabled={isLoading}
+                >
+                  <option value="" disabled>
+                    Choose your fighter
+                  </option>
+                  {FIGHTERS.map((fighter) => (
+                    <option key={fighter.value} value={fighter.value}>
+                      {fighter.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Second Contender</label>
-                <select 
-                  value={bot2} 
-                  onChange={(e) => setBot2(e.target.value)}
-                  className="w-full p-3 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                <label
+                  htmlFor="bot2"
+                  className="block text-gray-700 font-semibold mb-2"
                 >
-                  <option value="" disabled hidden>Select a personality</option>
-                  <option value="Elon Musk">Elon Musk</option>
-                  <option value="Narendra Modi">Narendra Modi</option>
-                  <option value="Donald Trump">Donald Trump</option>
-                  <option value="Andrew Tate">Andrew Tate</option>
+                  Second Contender
+                </label>
+                <select
+                  id="bot2"
+                  value={bot2}
+                  onChange={(e) => setBot2(e.target.value)}
+                  className="w-full p-3 rounded-xl border-2 border-[#2563EB]/20 bg-white text-gray-900 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
+                  disabled={isLoading}
+                >
+                  <option value="" disabled>
+                    Choose your fighter
+                  </option>
+                  {FIGHTERS.map((fighter) => (
+                    <option key={fighter.value} value={fighter.value}>
+                      {fighter.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
             <div className="space-y-6">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Debate Topic</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter the debate topic..." 
-                  value={topic} 
+                <label
+                  htmlFor="topic"
+                  className="block text-gray-700 font-semibold mb-2"
+                >
+                  Battle Topic
+                </label>
+                <input
+                  id="topic"
+                  type="text"
+                  placeholder="What's the fight about?"
+                  value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  className="w-full p-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                  className="w-full p-3 rounded-xl border-2 border-[#2563EB]/20 bg-white text-gray-900 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all"
+                  disabled={isLoading}
                 />
               </div>
 
-              <button 
-                onClick={roomId}
-                className="w-full py-4 px-6 text-lg font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg"
+              <button
+                onClick={createRoom}
+                disabled={isLoading}
+                className="w-full py-4 px-6 text-lg font-semibold text-white bg-[#2563EB] hover:bg-[#1d4ed8] rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Battle Room
+                {isLoading ? "Creating..." : "Start The Battle!"}
               </button>
             </div>
           </div>
 
-          {flag && (
-            <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-              <p className="text-red-700">Please fill in all fields and select different personalities for the battle.</p>
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border-l-4 border-[#EF4444] rounded-lg">
+              <p className="text-[#EF4444]">{error}</p>
             </div>
           )}
         </div>
 
-        <div className="bg-white ml-55 rounded-2xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Active Battle Rooms</h2>
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl p-8 border border-[#2563EB]/10 max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold text-[#2563EB] mb-6">
+            Live Battle Arenas
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Room ID</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Battle Link</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Contenders</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Topic</th>
+                <tr className="bg-[#F8FAFC]">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                    Arena ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                    Battle Link
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                    Fighters
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                    Topic
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {rooms.map((r) => (
-                  <tr key={r.id} className="hover:bg-gray-50 transition-colors duration-200">
-                    <td className="px-6 py-4 text-sm text-gray-500">{r.id}</td>
-                    <td className="px-6 py-4">
-                      <Link href={r.link} className="text-blue-600 hover:text-blue-800 font-medium">
-                        {r.link}
-                      </Link>
+                {isLoading ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
+                      Loading...
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      <span className="font-medium">{r.bots.join(" vs ")}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{r.topic}</td>
                   </tr>
-                ))}
+                ) : rooms.length > 0 ? (
+                  rooms.map((room) => (
+                    <tr
+                      key={room.id}
+                      className="hover:bg-[#F8FAFC] transition-colors duration-200"
+                    >
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {room.id}
+                      </td>
+                      <td className="px-6 py-4">
+                        <Link
+                          href={room.link}
+                          className="text-[#2563EB] hover:text-[#1d4ed8] font-medium"
+                        >
+                          {room.link}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4">{room.bots.join(" 🆚 ")}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {room.topic}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
+                      No rooms found for this wallet.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
