@@ -14,7 +14,6 @@
 //   const [selectedBot, setSelectedBot] = useState<string | number>("");
 //   const [txHash, setTxHash] = useState("");
 
-
 // const placeBet = async (botNumber: string | number) => {
 //   setIsLoading(true);
 //   setError('');
@@ -23,7 +22,6 @@
 //     if (!window.ethereum) {
 //       throw new Error('Please install MetaMask to place bets');
 //     }
-    
 
 //     const provider = new ethers.providers.Web3Provider(window.ethereum);
 //     await provider.send("eth_requestAccounts", []);
@@ -31,17 +29,16 @@
 //     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
 
 //     const MIN_BET_AMOUNT = ethers.utils.parseEther("0.001");
-    
+
 //     const tx = await contract.placeBet(botNumber, {
 //       value: MIN_BET_AMOUNT,
-//       gasLimit: 200000 
+//       gasLimit: 200000
 //     });
 
 //     const receipt = await tx.wait();
 
-
 //     setIsLoading(true)
-      
+
 //     if (receipt.status === 1) {
 //       setHasBetPlaced(true);
 //       setSelectedBot(botNumber);
@@ -52,7 +49,7 @@
 
 //     setHasBetPlaced(true);
 //     setSelectedBot(botNumber);
-    
+
 //     alert(`Bet placed successfully on Bot ${botNumber}!`);
 //   } catch (err) {
 //     console.error('Error placing bet:', err);
@@ -68,36 +65,41 @@
 //   }
 // };
 
-
-
-'use client'
-import { useState } from 'react';
-import { Heart, DollarSign } from 'lucide-react';
+"use client";
+import { useState } from "react";
+import { Heart, DollarSign } from "lucide-react";
 import TextPressure from "@/app/components/textPressure";
 import LiveChat from "@/app/components/liveChat";
 import { useParams } from "next/navigation";
+<<<<<<< HEAD
+import { getRoomById } from "@/db/mongodb";
+=======
 //import { getRoomById } from '@/db/mongodb';
 
+>>>>>>> origin
 
 // Import ethers directly from the browser-compatible package
-import { ethers } from 'ethers';
-import Integration from '@/app/integration/start';
-
-
-
+import { ethers } from "ethers";
+import Integration from "@/app/integration/start";
 
 export default function BattleRoyale() {
-	
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasBetPlaced, setHasBetPlaced] = useState(false);
   const [selectedBot, setSelectedBot] = useState<string | number>("");
   const [txHash, setTxHash] = useState("");
 
-  
-    const params = useParams();
-	const roomId = params.id; // The dynamic route parameter
+  const params = useParams();
+  const roomId = params.id; // The dynamic route parameter
 
+<<<<<<< HEAD
+  if (typeof roomId === "string") {
+    const fight = "";
+    console.log(fight);
+  } else {
+    console.error("Invalid roomId:", roomId);
+  }
+=======
 	if (typeof roomId === 'string') {
 	//  const fight = getRoomById(roomId);
 	//   console.log(fight);
@@ -105,9 +107,331 @@ export default function BattleRoyale() {
 	  console.error('Invalid roomId:', roomId);
 	}
 	
+>>>>>>> origin
 
-  
+  const contractAddress = "0x97490eb90f2be6d6cbaf75951105ff1113779669";
+  const contractABI = [
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "_duration",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "nonpayable",
+      type: "constructor",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "owner",
+          type: "address",
+        },
+      ],
+      name: "OwnableInvalidOwner",
+      type: "error",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+      ],
+      name: "OwnableUnauthorizedAccount",
+      type: "error",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "bettor",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint8",
+          name: "personality",
+          type: "uint8",
+        },
+      ],
+      name: "BetPlaced",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "address",
+          name: "deployed_address",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "creator",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "startTime",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "endTime",
+          type: "uint256",
+        },
+      ],
+      name: "FightCreated",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "uint8",
+          name: "winner",
+          type: "uint8",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "totalPool",
+          type: "uint256",
+        },
+      ],
+      name: "FightFinalized",
+      type: "event",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint8",
+          name: "winningPersonality",
+          type: "uint8",
+        },
+      ],
+      name: "finalizeFight",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "previousOwner",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "newOwner",
+          type: "address",
+        },
+      ],
+      name: "OwnershipTransferred",
+      type: "event",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint8",
+          name: "personality",
+          type: "uint8",
+        },
+      ],
+      name: "placeBet",
+      outputs: [],
+      stateMutability: "payable",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "renounceOwnership",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "newOwner",
+          type: "address",
+        },
+      ],
+      name: "transferOwnership",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "bettor",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+      ],
+      name: "UserPaid",
+      type: "event",
+    },
+    {
+      inputs: [],
+      name: "withdrawPlatformFees",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "currentFight",
+      outputs: [
+        {
+          internalType: "address",
+          name: "roomCreator",
+          type: "address",
+        },
+        {
+          internalType: "uint256",
+          name: "startTime",
+          type: "uint256",
+        },
+        {
+          internalType: "uint256",
+          name: "endTime",
+          type: "uint256",
+        },
+        {
+          internalType: "bool",
+          name: "isActive",
+          type: "bool",
+        },
+        {
+          internalType: "bool",
+          name: "isFinalized",
+          type: "bool",
+        },
+        {
+          internalType: "uint8",
+          name: "winner",
+          type: "uint8",
+        },
+        {
+          internalType: "uint256",
+          name: "totalPool",
+          type: "uint256",
+        },
+        {
+          internalType: "uint256",
+          name: "betAmountBot1",
+          type: "uint256",
+        },
+        {
+          internalType: "uint256",
+          name: "betAmountBot2",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "MIN_BET_AMOUNT",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "owner",
+      outputs: [
+        {
+          internalType: "address",
+          name: "",
+          type: "address",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "PLATFORM_FEE",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "platformFeesAccumulated",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+  ];
 
+<<<<<<< HEAD
+  //   async function placeBet(personality: 1 | 2, betAmount: string) {
+  //     setIsLoading(true);
+  //     setError("");
+
+  //     try {
+  //       // Instead of using Privy server-auth, make an API call to your backend
+  //       const response = await fetch('/api/place-bet', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify({ personality, betAmount }),
+  // });
+=======
  //'0x97490eb90f2be6d6cbaf75951105ff1113779669'
 
   const contractAddress = "0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724";
@@ -417,71 +741,58 @@ export default function BattleRoyale() {
 		"type": "function"
 	}
 ]
+>>>>>>> origin
 
-//   async function placeBet(personality: 1 | 2, betAmount: string) {
-//     setIsLoading(true);
-//     setError("");
-    
-//     try {
-//       // Instead of using Privy server-auth, make an API call to your backend
-//       const response = await fetch('/api/place-bet', {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-//   body: JSON.stringify({ personality, betAmount }),
-// });
+  // if (!response.ok) {
+  //   throw new Error(`Failed to place bet`);
+  // }
 
+  //       const data = await response.json();
+  //       setTxHash(data.txHash);
+  //       setHasBetPlaced(true);
+  //       setSelectedBot(personality);
+  //     } catch (err) {
+  //       setError(err instanceof Error ? err.message : 'Failed to place bet');
+  //       console.error("Error placing bet:", err);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
 
-// if (!response.ok) {
-//   throw new Error(`Failed to place bet`);
-// }
+  async function sendTransaction(botNumber: number) {
+    try {
+      const contractInterface = new ethers.utils.Interface(contractABI);
+      const metaData = contractInterface.encodeFunctionData("placeBet", [
+        botNumber,
+      ]);
 
-//       const data = await response.json();
-//       setTxHash(data.txHash);
-//       setHasBetPlaced(true);
-//       setSelectedBot(personality);
-//     } catch (err) {
-//       setError(err instanceof Error ? err.message : 'Failed to place bet');
-//       console.error("Error placing bet:", err);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   }
+      const response = await fetch("/api/send-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          metaData: metaData,
+          to: contractAddress, // Replace with recipient address
+          amount: ethers.utils.parseEther("0.00025").toString(), // Amount in ETH
+        }),
+      });
 
-	async function sendTransaction(botNumber: number) {
-	try {
+      const data = await response.json();
+      console.log("trnx successful ", data.txHash);
 
-		const contractInterface = new ethers.utils.Interface(contractABI);
-		const metaData = contractInterface.encodeFunctionData("placeBet", [botNumber]);   
-
-		const response = await fetch("/api/send-transaction", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			metaData: metaData,
-			to: contractAddress, // Replace with recipient address
-			amount: ethers.utils.parseEther("0.00025").toString(), // Amount in ETH
-		}),
-		});
-
-		const data = await response.json();
-		console.log("trnx successful ", data.txHash);
-		
-		if (response.ok) {
-		setTxHash(data.txHash);
-		} else {
-		console.log(data.error);
-		alert("Error: " + data.error);
-		}
-	} catch (error) {
-		console.error("Network error:", error);
-		alert("Network error");
-	}
-	}
+      if (response.ok) {
+        setTxHash(data.txHash);
+      } else {
+        console.log(data.error);
+        alert("Error: " + data.error);
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      alert("Network error");
+    }
+  }
 
   const getBetButtonText = (botNumber: number) => {
-    if (isLoading) return 'Placing Bet...';
+    if (isLoading) return "Placing Bet...";
     if (hasBetPlaced) {
       if (selectedBot === botNumber) return `Bet Placed on Bot ${botNumber}`;
       return `Bet Closed`;
@@ -494,7 +805,7 @@ export default function BattleRoyale() {
       <div className="bg-white-100 flex w-auto mt-10 mx-72 text-black">
         <div className="w-55">
           <div className="mt-4">
-            <div style={{ position: 'relative', height: '120px' }}>
+            <div style={{ position: "relative", height: "120px" }}>
               <TextPressure
                 text="Battle_Royale!"
                 flex={false}
@@ -524,7 +835,9 @@ export default function BattleRoyale() {
                   <div className="flex-grow">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-semibold">Content Creator 1</h3>
+                        <h3 className="text-lg font-semibold">
+                          Content Creator 1
+                        </h3>
                         <p className="text-sm text-gray-500">100k followers</p>
                       </div>
 
@@ -534,26 +847,42 @@ export default function BattleRoyale() {
                         </button>
 
                         {error && <p className="text-red-500">{error}</p>}
-                        
-                        <button 
+
+                        <button
                           onClick={() => sendTransaction(1)}
                           disabled={isLoading || hasBetPlaced}
                           className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
-                            ${selectedBot === 1 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+                            ${
+                              selectedBot === 1
+                                ? "bg-green-600 hover:bg-green-700"
+                                : "bg-red-600 hover:bg-red-700"
+                            }
                             text-white 
-                            ${(isLoading || hasBetPlaced) && selectedBot !== 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            ${
+                              (isLoading || hasBetPlaced) && selectedBot !== 1
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
                         >
                           <DollarSign className="w-4 h-4" />
                           {getBetButtonText(1)}
                         </button>
 
-                        <button 
+                        <button
                           onClick={() => sendTransaction(2)}
                           disabled={isLoading || hasBetPlaced}
                           className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
-                            ${selectedBot === 2 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+                            ${
+                              selectedBot === 2
+                                ? "bg-green-600 hover:bg-green-700"
+                                : "bg-red-600 hover:bg-red-700"
+                            }
                             text-white 
-                            ${(isLoading || hasBetPlaced) && selectedBot !== 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            ${
+                              (isLoading || hasBetPlaced) && selectedBot !== 2
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
                         >
                           <DollarSign className="w-4 h-4" />
                           {getBetButtonText(2)}
@@ -561,9 +890,7 @@ export default function BattleRoyale() {
 
                         {/* Add error display */}
                         {error && (
-                          <div className="mt-2 text-red-500">
-                            {error}
-                          </div>
+                          <div className="mt-2 text-red-500">{error}</div>
                         )}
 
                         {/* Add transaction hash display */}
@@ -578,7 +905,11 @@ export default function BattleRoyale() {
                 </div>
 
                 <div className="h-[400px] m-4 p-2">
-                  <strong>About:</strong> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Tempore perferendis omnis expedita, labore debitis fugit dignissimos laborum esse quam corporis porro, ipsa adipisci, alias totam dolorem saepe itaque sapiente unde.
+                  <strong>About:</strong> Lorem ipsum dolor sit, amet
+                  consectetur adipisicing elit. Tempore perferendis omnis
+                  expedita, labore debitis fugit dignissimos laborum esse quam
+                  corporis porro, ipsa adipisci, alias totam dolorem saepe
+                  itaque sapiente unde.
                 </div>
               </div>
             </div>
@@ -591,4 +922,3 @@ export default function BattleRoyale() {
     </div>
   );
 }
-  
