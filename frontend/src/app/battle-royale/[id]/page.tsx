@@ -1,77 +1,15 @@
-// 'use client'
-// import { useState, useEffect } from 'react';
-// import { Heart, DollarSign } from 'lucide-react';
-// import TextPressure from "@/app/components/textPressure";
-// import LiveChat from "@/app/components/liveChat";
-// import { PrivyClient } from '@privy-io/server-auth';
-
-// export default function BattleRoyale() {
-//   const {ethers} = require('ethers');
-
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [error, setError] = useState("")
-//   const [hasBetPlaced, setHasBetPlaced] = useState(false);
-//   const [selectedBot, setSelectedBot] = useState<string | number>("");
-//   const [txHash, setTxHash] = useState("");
-
-// const placeBet = async (botNumber: string | number) => {
-//   setIsLoading(true);
-//   setError('');
-
-//   try {
-//     if (!window.ethereum) {
-//       throw new Error('Please install MetaMask to place bets');
-//     }
-
-//     const provider = new ethers.providers.Web3Provider(window.ethereum);
-//     await provider.send("eth_requestAccounts", []);
-//     const signer = provider.getSigner();
-//     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
-
-//     const MIN_BET_AMOUNT = ethers.utils.parseEther("0.001");
-
-//     const tx = await contract.placeBet(botNumber, {
-//       value: MIN_BET_AMOUNT,
-//       gasLimit: 200000
-//     });
-
-//     const receipt = await tx.wait();
-
-//     setIsLoading(true)
-
-//     if (receipt.status === 1) {
-//       setHasBetPlaced(true);
-//       setSelectedBot(botNumber);
-//       alert(`Bet placed successfully on Bot ${botNumber}!`);
-//     } else {
-//       throw new Error('Transaction failed');
-//     }
-
-//     setHasBetPlaced(true);
-//     setSelectedBot(botNumber);
-
-//     alert(`Bet placed successfully on Bot ${botNumber}!`);
-//   } catch (err) {
-//     console.error('Error placing bet:', err);
-//     if (err) {
-//       console.error('Transaction was rejected in MetaMask');
-//     } else if (err) {
-//       console.error('Insufficient funds to place bet');
-//     } else {
-//       console.error('Failed to place bet. Please try again.');
-//     }
-//   } finally {
-//     setIsLoading(false);
-//   }
-// };
-
 "use client";
 import { useState } from "react";
 import { Heart, DollarSign } from "lucide-react";
 import TextPressure from "@/app/components/textPressure";
 import LiveChat from "@/app/components/liveChat";
 import { useParams } from "next/navigation";
+<<<<<<< HEAD
 import { getRoomById } from "@/db/mongodb";
+=======
+import contractABI from "../contract_abi";
+
+>>>>>>> origin
 
 // Import ethers directly from the browser-compatible package
 import { ethers } from "ethers";
@@ -95,6 +33,7 @@ export default function BattleRoyale() {
   }
 
   const contractAddress = "0x97490eb90f2be6d6cbaf75951105ff1113779669";
+<<<<<<< HEAD
   const contractABI = [
     {
       inputs: [
@@ -433,6 +372,8 @@ export default function BattleRoyale() {
   //       setIsLoading(false);
   //     }
   //   }
+=======
+>>>>>>> origin
 
   async function sendTransaction(botNumber: number) {
     try {
