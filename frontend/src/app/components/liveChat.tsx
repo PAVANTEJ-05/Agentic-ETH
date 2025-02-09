@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { useParams } from "next/navigation";
+import dotenv from "dotenv";
+dotenv.config();
 
 const socket = io(
   process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001"
