@@ -35,13 +35,13 @@ export default function Room() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100vh-8rem)]">
       <div className="absolute inset-0 z-[1]">
         <Ballpit
           count={450}
-          gravity={1.6}
+          gravity={1.2}
           friction={0.8}
-          wallBounce={2}
+          wallBounce={3}
           followCursor={false}
           colors={[[230, 200, 255], 221, 100, 255]}
           maxSize={0.7}
