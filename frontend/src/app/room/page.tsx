@@ -155,7 +155,7 @@ export default function Room() {
         bots: [bot1, bot2],
         topic,
         userAddress,
-        contractAddress,
+        roomContractAddress,
       };
 
       const response = await fetch("/api/rooms", {
@@ -317,6 +317,9 @@ export default function Room() {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
                     Topic
                   </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                    Contract Address
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -349,6 +352,9 @@ export default function Room() {
                       <td className="px-6 py-4">{room.bots.join(" 🆚 ")}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         {room.topic}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {room.contractAddress}
                       </td>
                     </tr>
                   ))

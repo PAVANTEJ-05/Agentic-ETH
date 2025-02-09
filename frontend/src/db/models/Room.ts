@@ -7,6 +7,7 @@ export interface IRoom extends Document {
   topic: string;
   userAddress: string;
   createdAt: Date;
+  contractAddress: string;
 }
 
 const RoomSchema = new Schema({
@@ -16,7 +17,8 @@ const RoomSchema = new Schema({
   topic: { type: String, required: true },
   userAddress: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
+  contractAddress: {type: String, required: true},
 });
 
 export const Room =
-  mongoose.models.Room || mongoose.model<IRoom>("Room", RoomSchema);
+  mongoose.models.Room || mongoose.model<IRoom>("RoomList", RoomSchema);
