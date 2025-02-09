@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MessageCircle, AlertCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface APIMessage {
@@ -32,18 +31,12 @@ interface Message {
 
 type Character = "musk" | "tate";
 
-const API_URL = "https://autonome.alt.technology/ethagent-kwsbrp/message";
-const POLLING_INTERVAL = 15000; // 10 seconds
-
+const API_URL = "https://autonome.alt.technology/kaleshai-vmyjuu/message";
+const POLLING_INTERVAL = 15000;
+const DEBATE_DURATION = 180000;
 const TIMER_INTERVAL = 1000;
 
-// interface IntegrationProps {
-//   fight: object;
-// }
-
-const Integration: React.FC= () => {
-
- // console.log("props ", fight)
+const Integration: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +46,7 @@ const Integration: React.FC= () => {
   const [debateStatus, setDebateStatus] = useState<
     "active" | "completed" | null
   >(null);
+  const [result, setResult] = useState("");
 
   const messagePollingRef = useRef<NodeJS.Timeout | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -61,15 +55,49 @@ const Integration: React.FC= () => {
   const debateIdRef = useRef<string | null>(null);
   const debateStatusRef = useRef<string | null>(null);
   const lastCharacterRef = useRef<Character | null>(null);
+  const [debateEnded, setDebateEnded] = useState(false);
+  const debateTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateLocalTimer = useCallback(() => {
     setTimeRemaining((prev) => {
-      if (prev === null || prev <= 0) return 0;
+      if (prev === null || prev <= 0) {
+        if (!debateEnded) {
+          setDebateEnded(true);
+          // Clear all intervals when timer reaches 0
+          if (messagePollingRef.current)
+            clearInterval(messagePollingRef.current);
+          if (timerRef.current) clearInterval(timerRef.current);
+          // Fetch the result with retry logic
+          fetchEvaluation();
+        }
+        return 0;
+      }
       return prev - 1000;
     });
-  }, []);
+  }, [debateEnded]);
 
-  // request wrapper
+  const fetchEvaluation = async () => {
+    try {
+      // Add a small delay to ensure the debate has been processed
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const res = await fetch(
+       ` https://autonome.alt.technology/kaleshai-vmyjuu/battles/${debateIdRef.current}/evaluation`
+      );
+      const data = await res.json();
+      if (data.evaluation) {
+        setResult(data.evaluation);
+      } else {
+        // If no evaluation yet, retry after a short delay
+        setTimeout(fetchEvaluation, 2000);
+      }
+    } catch (error) {
+      console.error("Error fetching evaluation:", error);
+      // Retry on error
+      setTimeout(fetchEvaluation, 2000);
+    }
+  };
+
   const makeApiRequest = async (url: string, options: RequestInit) => {
     try {
       const response = await fetch(url, {
@@ -108,9 +136,7 @@ const Integration: React.FC= () => {
         lastCharacterRef.current = data.context.lastCharacter;
         console.log("data.context.lastCharacter", data.context.lastCharacter);
       }
-      console.log("13");
 
-      // Add new messages if they exist
       if (data.messages && data.messages.length > 0) {
         setMessages((prev) => {
           const newMessage = {
@@ -143,7 +169,7 @@ const Integration: React.FC= () => {
   );
 
   const pollDebateStatus = useCallback(async () => {
-    if (!debateIdRef || debateStatusRef.current !== "active") {
+    if (!debateIdRef.current || debateStatusRef.current !== "active") {
       console.log("deabteId not found");
       return;
     }
@@ -154,6 +180,7 @@ const Integration: React.FC= () => {
 
       console.log("inside pollDebateStatus ");
       console.log("lastCharacterRef.current ", lastCharacterRef.current);
+      console.log("DebateId", debateIdRef.current);
       const data = (await makeApiRequest(API_URL, {
         method: "POST",
         body: JSON.stringify({
@@ -161,7 +188,7 @@ const Integration: React.FC= () => {
           userId: "user",
           context: {
             debateId: debateIdRef.current,
-            lastCharacter: lastCharacterRef.current,
+            lastCharacter: lastCharacterRef.current || "musk",
             characters: ["musk", "tate"],
           },
         }),
@@ -175,7 +202,7 @@ const Integration: React.FC= () => {
       setError(errorMessage);
       console.error(err);
     }
-  }, [debateStatus, lastCharacterRef, updateDebateState, debateId]);
+  }, [updateDebateState]);
 
   const initializeDebate = async (): Promise<void> => {
     try {
@@ -209,45 +236,46 @@ const Integration: React.FC= () => {
     }
   };
 
-  useEffect(() => {
-    //lastCharacterRef.current = "musk";
-    initializeDebate();
-    //handleRestartDebate();
-
-    return () => {
-      if (messagePollingRef.current) clearInterval(messagePollingRef.current);
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
   const startPollingAndTimer = useCallback(() => {
     // Clear existing intervals if any
     if (messagePollingRef.current) clearInterval(messagePollingRef.current);
     if (timerRef.current) clearInterval(timerRef.current);
+    if (debateTimerRef.current) clearTimeout(debateTimerRef.current);
+
+    setDebateEnded(false); // Reset debate ended state
+    setResult(""); // Reset result
+    setTimeRemaining(DEBATE_DURATION);
 
     // Start message polling
     messagePollingRef.current = setInterval(async () => {
-      console.log("calling poll debate");
-      await pollDebateStatus();
+      if (!debateEnded) {
+        await pollDebateStatus();
+      }
     }, POLLING_INTERVAL);
 
     // Start local timer
     timerRef.current = setInterval(() => {
       updateLocalTimer();
     }, TIMER_INTERVAL);
-  }, [pollDebateStatus, updateLocalTimer]);
 
- 
-  const handleRestartDebate = async (): Promise<void> => {
-    setMessages([]);
-    setDebateId(null);
-    setLastCharacter(null);
-    setTimeRemaining(null);
-    setDebateStatus(null);
-    setError(null);
+    // Set timeout to end debate after DEBATE_DURATION
+    debateTimerRef.current = setTimeout(() => {
+      setDebateEnded(true);
+      if (messagePollingRef.current) clearInterval(messagePollingRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+      fetchEvaluation();
+    }, DEBATE_DURATION);
+  }, [pollDebateStatus, updateLocalTimer, debateEnded]);
 
-    await initializeDebate();
-  };
+  useEffect(() => {
+    initializeDebate();
+
+    return () => {
+      if (messagePollingRef.current) clearInterval(messagePollingRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (debateTimerRef.current) clearTimeout(debateTimerRef.current);
+    };
+  }, []);
 
   const getCharacterDisplayName = (character: Character): string => {
     return character === "musk" ? "Elon Musk" : "Andrew Tate";
@@ -271,27 +299,14 @@ const Integration: React.FC= () => {
                 Time Remaining: {formatTimeRemaining(timeRemaining)}
               </span>
             )}
-            <Button
-              onClick={handleRestartDebate}
-              variant="outline"
-              disabled={isLoading}
-            >
-              Restart Debate
-            </Button>
           </div>
         </div>
 
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {debateStatus === "completed" && (
+        {debateEnded && (
           <Alert className="mb-4">
             <AlertDescription>
-              Debate has ended! Click Restart Debate to begin a new one.
+              Debate has ended!{" "}
+              {result && <div className="mt-2">Result: {result}</div>}
             </AlertDescription>
           </Alert>
         )}
@@ -318,6 +333,7 @@ const Integration: React.FC= () => {
                   {getCharacterDisplayName(message.character)}
                 </div>
                 <div>{message.content}</div>
+                <div>{result}</div>
               </div>
             </div>
           ))}

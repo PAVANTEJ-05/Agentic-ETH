@@ -1,17 +1,16 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Heart, DollarSign } from 'lucide-react';
 import TextPressure from "@/app/components/textPressure";
 import LiveChat from "@/app/components/liveChat";
 import { useParams } from "next/navigation";
+import { IRoom } from "@/db/models/Room";
 //import { getRoomById } from '@/db/mongodb';
 
 
 // Import ethers directly from the browser-compatible package
 import { ethers } from 'ethers';
 import Integration from '@/app/integration/start';
-
-
 
 
 export default function BattleRoyale() {
@@ -21,24 +20,107 @@ export default function BattleRoyale() {
   const [hasBetPlaced, setHasBetPlaced] = useState(false);
   const [selectedBot, setSelectedBot] = useState<string | number>("");
   const [txHash, setTxHash] = useState("");
+  const [userAddress, setUserAddress] = useState<string | null>(null);
+ const [room, setRoom] = useState<IRoom>();
+ const [rooms, setRooms] = useState<IRoom[]>([]);
+ const [provider, setProvider] =
+    useState<ethers.providers.Web3Provider | null>(null);
+  
 
   
     const params = useParams();
-	const roomId = params.id; // The dynamic route parameter
+	const roomId = params.id; 
 
-	if (typeof roomId === 'string') {
-	//  const fight = getRoomById(roomId);
-	//   console.log(fight);
-	} else {
-	  console.error('Invalid roomId:', roomId);
-	}
+	// useEffect(() => {
+	// 	if (typeof roomId === 'string') {
+	// 		console.log("inside useEE  ",roomId);
+	// 		fetchData(roomId);
+	// 	} else {
+	// 		console.error('Invalid roomId:', roomId);
+	// 	}
+	//   }, [roomId]);
+
+	//   const fetchData = async(roomId: string) => {
+	// 	setIsLoading(true);
+	// 	try {
+	// 	  const response = await fetch(`/api/rooms/${roomId}`,{
+	// 		method: "GET",
+	// 		headers: {
+	// 			'Content-Type': 'application/json'  
+	// 		}
+	// 	  });
+		  
+	// 	  if (!response.ok) {
+	// 		if (response.status === 404) {
+	// 		  throw new Error('Room not found');
+	// 		}
+	// 		throw new Error(`HTTP error! status: ${response.status}`);
+	// 	  }
+		  
+	// 	  const data = await response.json();
+	// 	  console.log("Fetched room data:", data); // Debug log
+	// 	  setRoom(data);
+	// 	} catch (error) {
+	// 	  console.error("Error fetching room:", error);
+	// 	  setError(error instanceof Error ? error.message : "Failed to load room");
+	// 	  setRoom(undefined);
+	// 	} finally {
+	// 	  setIsLoading(false);
+	// 	}
+	//   };
+
+	//_----------------------------------
+
+
+	useEffect(() => {
+		if (!userAddress) return;
 	
+		fetchRooms();
+	  }, [userAddress]);
+	
+	  const fetchRooms = async () => {
+		try {
+		  setIsLoading(true);
+		  const response = await fetch(`/api/rooms/${userAddress}`);
+		  if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		  }
+		  const data = await response.json();
+		  setRooms(data);
+		} catch (error) {
+		  console.error("Error fetching rooms:", error);
+		  setError("Failed to load rooms. Please try again later.");
+		} finally {
+		  setIsLoading(false);
+		}
+	  };
 
-  
+	  useEffect(() => {
+		connectWallet();
+	  }, []);
 
- 
+	  const connectWallet = async () => {
+		if (typeof window.ethereum === "undefined") {
+		  setError("Please install MetaMask to continue.");
+		  return;
+		}
+	
+		try {
+		  const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+		  const accounts = await window.ethereum.request({
+			method: "eth_requestAccounts",
+		  });
+		  setUserAddress(accounts[0]);
+		  setProvider(web3Provider);
+		  setError("");
+		} catch (error) {
+		  console.error("Error connecting to MetaMask:", error);
+		  setError("Failed to connect wallet. Please try again.");
+		}
+	  };
 
-  const contractAddress = "0x97490eb90f2be6d6cbaf75951105ff1113779669";
+
+  const contractAddress: any = "0x97490eb90f2be6d6cbaf75951105ff1113779669";
   const contractABI = [
 	{
 		"inputs": [
@@ -346,50 +428,21 @@ export default function BattleRoyale() {
 	}
 ]
 
-//   async function placeBet(personality: 1 | 2, betAmount: string) {
-//     setIsLoading(true);
-//     setError("");
-    
-//     try {
-//       // Instead of using Privy server-auth, make an API call to your backend
-//       const response = await fetch('/api/place-bet', {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-//   body: JSON.stringify({ personality, betAmount }),
-// });
-
-
-// if (!response.ok) {
-//   throw new Error(`Failed to place bet`);
-// }
-
-//       const data = await response.json();
-//       setTxHash(data.txHash);
-//       setHasBetPlaced(true);
-//       setSelectedBot(personality);
-//     } catch (err) {
-//       setError(err instanceof Error ? err.message : 'Failed to place bet');
-//       console.error("Error placing bet:", err);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   }
 
 	async function sendTransaction(botNumber: number) {
 	try {
 
 		const contractInterface = new ethers.utils.Interface(contractABI);
 		const metaData = contractInterface.encodeFunctionData("placeBet", [botNumber]);   
+		const hiha = await rooms[rooms.length-1].contractAddress;
 
 		const response = await fetch("/api/send-transaction", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
 			metaData: metaData,
-			to: contractAddress, // Replace with recipient address
-			amount: ethers.utils.parseEther("0.00025").toString(), // Amount in ETH
+			to: rooms[rooms.length-1].contractAddress || "0x97490eb90f2be6d6cbaf75951105ff1113779669", // Replace with recipient address
+			amount: ethers.utils.parseEther("0.0025").toString(), // Amount in ETH
 		}),
 		});
 
@@ -409,11 +462,7 @@ export default function BattleRoyale() {
 	}
 
   const getBetButtonText = (botNumber: number) => {
-    if (isLoading) return 'Placing Bet...';
-    if (hasBetPlaced) {
-      if (selectedBot === botNumber) return `Bet Placed on Bot ${botNumber}`;
-      return `Bet Closed`;
-    }
+   
     return `Bet on Bot ${botNumber}`;
   };
 
@@ -465,23 +514,22 @@ export default function BattleRoyale() {
                         
                         <button 
                           onClick={() => sendTransaction(1)}
-                          disabled={isLoading || hasBetPlaced}
                           className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
                             ${selectedBot === 1 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
                             text-white 
-                            ${(isLoading || hasBetPlaced) && selectedBot !== 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
+                           `}
+                          >
                           <DollarSign className="w-4 h-4" />
                           {getBetButtonText(1)}
                         </button>
 
                         <button 
                           onClick={() => sendTransaction(2)}
-                          disabled={isLoading || hasBetPlaced}
+                        
                           className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
                             ${selectedBot === 2 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
                             text-white 
-                            ${(isLoading || hasBetPlaced) && selectedBot !== 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                           `}
                         >
                           <DollarSign className="w-4 h-4" />
                           {getBetButtonText(2)}

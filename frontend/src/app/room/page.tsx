@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { IRoom } from "@/db/models/Room";
 import Ballpit from "../components/ui/ballPit";
 import { ethers } from "ethers";
-import contractABI from "./contractABI";
+import {contractABI, contractBytecode} from "./contractABI";
 // Types for the component
 interface Fighter {
   value: string;
@@ -23,7 +23,7 @@ const FIGHTERS: Fighter[] = [
 
 export default function Room() {
   // State with proper typing
-  const [rooms, setRooms] = useState<IRoom[]>([]);
+  const [rooms, setRooms] = useState<IRoom[]>([]); 
   const [bot1, setBot1] = useState<string>("");
   const [bot2, setBot2] = useState<string>("");
   const [topic, setTopic] = useState<string>("");
@@ -90,31 +90,29 @@ export default function Room() {
 
     try {
       const signer = provider.getSigner();
-      const mainContract = new ethers.Contract(
-        contractAddress,
+      const mainContract = new ethers.ContractFactory(
+        
         contractABI,
+        contractBytecode,
         signer
       );
 
-      // Deploy new room contract through main contract
-      const tx = await mainContract.createRoom(roomId, bot1, bot2, topic, {
-        value: ethers.utils.parseEther("0.01"), // Assuming deployment requires 0.01 ETH
-        gasLimit: 3000000,
-      });
+  
+      const contract = await mainContract.deploy(
+        3, 
+        {
+            gasLimit: 3000000,
+        }
+    );
 
-      // Wait for deployment
-      const receipt = await tx.wait();
+        console.log("Waiting for deployment transaction to be mined...");
+        await contract.deployed();
 
-      // Get new room contract address from event logs
-      const roomCreatedEvent = receipt.events?.find(
-        (event: any) => event.event === "RoomCreated"
-      );
+        console.log("Room Contract deployed to:", contract.address);
+        return contract.address;
+     
 
-      if (!roomCreatedEvent) {
-        throw new Error("Room creation event not found");
-      }
-
-      return roomCreatedEvent.args.roomAddress;
+   
     } catch (error) {
       console.error("Contract deployment failed:", error);
       throw error;
@@ -155,7 +153,7 @@ export default function Room() {
         bots: [bot1, bot2],
         topic,
         userAddress,
-        contractAddress,
+        roomContractAddress,
       };
 
       const response = await fetch("/api/rooms", {
