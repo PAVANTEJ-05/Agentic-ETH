@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { address: string } }
 ) {
   try {
-    const address = params.address;
+    const address = (await params).address;
 
     if (!address) {
       return NextResponse.json(
