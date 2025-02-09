@@ -75,17 +75,40 @@ import { useState } from 'react';
 import { Heart, DollarSign } from 'lucide-react';
 import TextPressure from "@/app/components/textPressure";
 import LiveChat from "@/app/components/liveChat";
+import { useParams } from "next/navigation";
+import { getRoomById } from '@/db/mongodb';
+
 
 // Import ethers directly from the browser-compatible package
 import { ethers } from 'ethers';
 import Integration from '@/app/integration/start';
 
+
+
+
 export default function BattleRoyale() {
+	
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasBetPlaced, setHasBetPlaced] = useState(false);
   const [selectedBot, setSelectedBot] = useState<string | number>("");
   const [txHash, setTxHash] = useState("");
+
+  
+    const params = useParams();
+	const roomId = params.id; // The dynamic route parameter
+
+	if (typeof roomId === 'string') {
+	  const fight = getRoomById(roomId);
+	//   console.log(fight);
+	} else {
+	  console.error('Invalid roomId:', roomId);
+	}
+	
+
+  
+
+ 
 
   const contractAddress = '0x97490eb90f2be6d6cbaf75951105ff1113779669'
 const contractABI = [
@@ -426,36 +449,36 @@ const contractABI = [
 //     }
 //   }
 
-async function sendTransaction(botNumber: number) {
-  try {
+	async function sendTransaction(botNumber: number) {
+	try {
 
-    const contractInterface = new ethers.utils.Interface(contractABI);
-    const metaData = contractInterface.encodeFunctionData("placeBet", [botNumber]);   
+		const contractInterface = new ethers.utils.Interface(contractABI);
+		const metaData = contractInterface.encodeFunctionData("placeBet", [botNumber]);   
 
-    const response = await fetch("/api/send-transaction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        metaData: metaData,
-        to: contractAddress, // Replace with recipient address
-        amount: ethers.utils.parseEther("0.00025").toString(), // Amount in ETH
-      }),
-    });
+		const response = await fetch("/api/send-transaction", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			metaData: metaData,
+			to: contractAddress, // Replace with recipient address
+			amount: ethers.utils.parseEther("0.00025").toString(), // Amount in ETH
+		}),
+		});
 
-    const data = await response.json();
-    console.log("trnx successful ", data.txHash);
-    
-    if (response.ok) {
-      setTxHash(data.txHash);
-    } else {
-      console.log(data.error);
-      alert("Error: " + data.error);
-    }
-  } catch (error) {
-    console.error("Network error:", error);
-    alert("Network error");
-  }
-}
+		const data = await response.json();
+		console.log("trnx successful ", data.txHash);
+		
+		if (response.ok) {
+		setTxHash(data.txHash);
+		} else {
+		console.log(data.error);
+		alert("Error: " + data.error);
+		}
+	} catch (error) {
+		console.error("Network error:", error);
+		alert("Network error");
+	}
+	}
 
   const getBetButtonText = (botNumber: number) => {
     if (isLoading) return 'Placing Bet...';
@@ -490,7 +513,7 @@ async function sendTransaction(botNumber: number) {
 
           <div className="flex flex-col md:flex-row gap-4 p-4">
             <div className="flex-1">
-              <Integration/>
+              <Integration fight={fight}/>
 
               <div className="max-w-5xl p-4">
                 <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50">

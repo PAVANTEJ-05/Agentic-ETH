@@ -37,7 +37,13 @@ const POLLING_INTERVAL = 15000; // 10 seconds
 
 const TIMER_INTERVAL = 1000;
 
-const Integration: React.FC = () => {
+// interface IntegrationProps {
+//   fight: object;
+// }
+
+const Integration: React.FC= () => {
+
+ // console.log("props ", fight)
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
