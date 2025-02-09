@@ -1,4 +1,6 @@
+"use client"
 import { Trophy, Medal } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const Leaderboard = () => {
   const leaderboardData = [
@@ -31,9 +33,10 @@ const Leaderboard = () => {
         );
     }
   };
+  const path = usePathname();
 
   return (
-    <div className="fixed top-16 left-0 w-72 h-[calc(100vh-4rem)] bg-white shadow-lg border-r border-gray-200">
+    <div className={`fixed top-16 left-0 w-72 h-[calc(100vh-4rem)] ${(path=="/room")&&"hidden"} bg-white shadow-lg border-r border-gray-200`}>
       <div className="p-6">
         <h1 className="flex items-center justify-center text-3xl font-bold text-gray-800 mb-6">
           <Trophy className="w-8 h-8 text-yellow-500 mr-2" />
