@@ -3,7 +3,9 @@ import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { useParams } from "next/navigation";
 
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001");
+const socket = io(
+  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001"
+);
 
 interface Message {
   userId: string;
@@ -11,7 +13,7 @@ interface Message {
 }
 
 export default function LiveChat() {
-  const { id: roomId } = useParams(); 
+  const { id: roomId } = useParams();
   const [chat, setChat] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [uuid, setUuid] = useState("");
@@ -52,7 +54,9 @@ export default function LiveChat() {
       <div className="flex-1 p-3 space-y-2 bg-gray-100 overflow-y-auto">
         {messages.map((msg, index) => (
           <div key={index} className="flex items-start gap-4">
-            <div className="w-auto h-auto rounded-l bg-blue-100 p-2">{msg.userId}:</div>
+            <div className="w-auto h-auto rounded-l bg-blue-100 p-2">
+              {msg.userId}:
+            </div>
             <div className="p-2.5 bg-gray-200 rounded-3xl px-4">{msg.text}</div>
           </div>
         ))}
@@ -66,7 +70,10 @@ export default function LiveChat() {
           value={chat}
           onChange={(e) => setChat(e.target.value)}
         />
-        <button className="ml-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-full" onClick={send}>
+        <button
+          className="ml-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-full"
+          onClick={send}
+        >
           Send
         </button>
       </div>

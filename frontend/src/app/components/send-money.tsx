@@ -21,7 +21,6 @@ export default function SendTransaction() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          
           to: "0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724", // Replace with recipient address
           amount: "0.0005", // Amount in ETH
         }),
@@ -53,8 +52,20 @@ export default function SendTransaction() {
 
       {txHash && (
         <div className="mt-4 p-4 bg-gray-200 rounded">
-          <p><strong>Transaction Sent!</strong></p>
-          <p><strong>Tx Hash:</strong> <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-blue-500">{txHash}</a></p>
+          <p>
+            <strong>Transaction Sent!</strong>
+          </p>
+          <p>
+            <strong>Tx Hash:</strong>{" "}
+            <a
+              href={`https://etherscan.io/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500"
+            >
+              {txHash}
+            </a>
+          </p>
         </div>
       )}
     </div>

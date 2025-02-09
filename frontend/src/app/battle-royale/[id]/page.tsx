@@ -1,19 +1,94 @@
+// 'use client'
+// import { useState, useEffect } from 'react';
+// import { Heart, DollarSign } from 'lucide-react';
+// import TextPressure from "@/app/components/textPressure";
+// import LiveChat from "@/app/components/liveChat";
+// import { PrivyClient } from '@privy-io/server-auth';
+
+// export default function BattleRoyale() {
+//   const {ethers} = require('ethers');
+
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [error, setError] = useState("")
+//   const [hasBetPlaced, setHasBetPlaced] = useState(false);
+//   const [selectedBot, setSelectedBot] = useState<string | number>("");
+//   const [txHash, setTxHash] = useState("");
+
+
+// const placeBet = async (botNumber: string | number) => {
+//   setIsLoading(true);
+//   setError('');
+
+//   try {
+//     if (!window.ethereum) {
+//       throw new Error('Please install MetaMask to place bets');
+//     }
+    
+
+//     const provider = new ethers.providers.Web3Provider(window.ethereum);
+//     await provider.send("eth_requestAccounts", []);
+//     const signer = provider.getSigner();
+//     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+
+//     const MIN_BET_AMOUNT = ethers.utils.parseEther("0.001");
+    
+//     const tx = await contract.placeBet(botNumber, {
+//       value: MIN_BET_AMOUNT,
+//       gasLimit: 200000 
+//     });
+
+//     const receipt = await tx.wait();
+
+
+//     setIsLoading(true)
+      
+//     if (receipt.status === 1) {
+//       setHasBetPlaced(true);
+//       setSelectedBot(botNumber);
+//       alert(`Bet placed successfully on Bot ${botNumber}!`);
+//     } else {
+//       throw new Error('Transaction failed');
+//     }
+
+//     setHasBetPlaced(true);
+//     setSelectedBot(botNumber);
+    
+//     alert(`Bet placed successfully on Bot ${botNumber}!`);
+//   } catch (err) {
+//     console.error('Error placing bet:', err);
+//     if (err) {
+//       console.error('Transaction was rejected in MetaMask');
+//     } else if (err) {
+//       console.error('Insufficient funds to place bet');
+//     } else {
+//       console.error('Failed to place bet. Please try again.');
+//     }
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
+
+
+
 'use client'
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Heart, DollarSign } from 'lucide-react';
 import TextPressure from "@/app/components/textPressure";
 import LiveChat from "@/app/components/liveChat";
 
-export default function BattleRoyale() {
-  const {ethers} = require('ethers');
+// Import ethers directly from the browser-compatible package
+import { ethers } from 'ethers';
+import Integration from '@/app/integration/start';
 
+export default function BattleRoyale() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("")
+  const [error, setError] = useState("");
   const [hasBetPlaced, setHasBetPlaced] = useState(false);
   const [selectedBot, setSelectedBot] = useState<string | number>("");
+  const [txHash, setTxHash] = useState("");
 
-const contractAddress = '0x97490eb90f2be6d6cbaf75951105ff1113779669'
-const contractAbi = [
+  const contractAddress = '0x97490eb90f2be6d6cbaf75951105ff1113779669'
+const contractABI = [
 	{
 		"inputs": [
 			{
@@ -320,161 +395,177 @@ const contractAbi = [
 	}
 ]
 
-const placeBet = async (botNumber: string | number) => {
-  setIsLoading(true);
-  setError('');
-
-  try {
-    if (!window.ethereum) {
-      throw new Error('Please install MetaMask to place bets');
-    }
-
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, contractAbi, signer);
-
-    const MIN_BET_AMOUNT = ethers.utils.parseEther("0.001");
+//   async function placeBet(personality: 1 | 2, betAmount: string) {
+//     setIsLoading(true);
+//     setError("");
     
-    const tx = await contract.placeBet(botNumber, {
-      value: MIN_BET_AMOUNT,
-      gasLimit: 200000 
+//     try {
+//       // Instead of using Privy server-auth, make an API call to your backend
+//       const response = await fetch('/api/place-bet', {
+//   method: 'POST',
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+//   body: JSON.stringify({ personality, betAmount }),
+// });
+
+
+// if (!response.ok) {
+//   throw new Error(`Failed to place bet`);
+// }
+
+//       const data = await response.json();
+//       setTxHash(data.txHash);
+//       setHasBetPlaced(true);
+//       setSelectedBot(personality);
+//     } catch (err) {
+//       setError(err instanceof Error ? err.message : 'Failed to place bet');
+//       console.error("Error placing bet:", err);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }
+
+async function sendTransaction(botNumber: number) {
+  try {
+
+    const contractInterface = new ethers.utils.Interface(contractABI);
+    const metaData = contractInterface.encodeFunctionData("placeBet", [botNumber]);   
+
+    const response = await fetch("/api/send-transaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        metaData: metaData,
+        to: contractAddress, // Replace with recipient address
+        amount: ethers.utils.parseEther("0.00025").toString(), // Amount in ETH
+      }),
     });
 
-    const receipt = await tx.wait();
-
-
-    setIsLoading(true)
-      
-    if (receipt.status === 1) {
-      setHasBetPlaced(true);
-      setSelectedBot(botNumber);
-      alert(`Bet placed successfully on Bot ${botNumber}!`);
-    } else {
-      throw new Error('Transaction failed');
-    }
-
-    setHasBetPlaced(true);
-    setSelectedBot(botNumber);
+    const data = await response.json();
+    console.log("trnx successful ", data.txHash);
     
-    alert(`Bet placed successfully on Bot ${botNumber}!`);
-  } catch (err) {
-    console.error('Error placing bet:', err);
-    if (err) {
-      console.error('Transaction was rejected in MetaMask');
-    } else if (err) {
-      console.error('Insufficient funds to place bet');
+    if (response.ok) {
+      setTxHash(data.txHash);
     } else {
-      console.error('Failed to place bet. Please try again.');
+      console.log(data.error);
+      alert("Error: " + data.error);
     }
-  } finally {
-    setIsLoading(false);
+  } catch (error) {
+    console.error("Network error:", error);
+    alert("Network error");
   }
-};
+}
 
-const getBetButtonText = (botNumber: string | number) => {
-  if (isLoading) return 'Placing Bet...';
-  if (hasBetPlaced) {
-    if (selectedBot === botNumber) return `Bet Placed on Bot ${botNumber}`;
-    return `Bet Closed`;
-  }
-  return `Bet on Bot ${botNumber}`;
-};
+  const getBetButtonText = (botNumber: number) => {
+    if (isLoading) return 'Placing Bet...';
+    if (hasBetPlaced) {
+      if (selectedBot === botNumber) return `Bet Placed on Bot ${botNumber}`;
+      return `Bet Closed`;
+    }
+    return `Bet on Bot ${botNumber}`;
+  };
 
-
- 
-
-    return (<div >
-<div className="bg-white-100 flex w-auto mt-10 mx-72 text-black" >
-
-      <div className="w-55 ">
-      <div className="mt-4">
-        <div style={{ position: 'relative', height: '120px' }}>
-          <TextPressure
-            text="Battle_Royale!"
-            flex={false}
-            alpha={false}
-            stroke={false}
-            width={true}
-            weight={false}
-            italic={true}
-            scale={false}
-            textColor="#"
-            strokeColor="#ff0000"
-            minFontSize={36}
-          />
-        </div>
-      </div>
-    
-      <div className="flex flex-col md:flex-row gap-4 p-4">
-        <div className="flex-1">
-          <iframe
-            className="w-full aspect-video rounded-lg shadow"
-            src="https://www.youtube.com/embed/V_34qKgCNT4?si=JwSj0ByLgUuOL08e"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          ></iframe>
-          
-          <div className="max-w-5xl p-4">
-            <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50">
-              <div className="flex-shrink-0">
-                <div className="w-16 h-16 rounded-full bg-blue-100 overflow-hidden flex items-center justify-center">
-                  {/* <Image src={img} alt="Creator Avatar" className="w-full h-full object-cover" /> */}
-                </div>
-              </div>
-              
-              <div className="flex-grow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold">Content Creator 1</h3>
-                    <p className="text-sm text-gray-500">100k followers</p>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
-                      <Heart className="w-4 h-4" /> Follow
-                    </button>
-                    
-                    <button 
-                      onClick={() => placeBet(1)} 
-                      disabled={isLoading || hasBetPlaced}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
-                        ${selectedBot === 1 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
-                        text-white 
-                        ${(isLoading || hasBetPlaced) && selectedBot !== 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <DollarSign className="w-4 h-4" />
-                      {getBetButtonText(1)}
-                    </button>
-                    
-                    <button 
-                      onClick={() => placeBet(2)}
-                      disabled={isLoading || hasBetPlaced}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
-                        ${selectedBot === 2 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
-                        text-white 
-                        ${(isLoading || hasBetPlaced) && selectedBot !== 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <DollarSign className="w-4 h-4" />
-                      {getBetButtonText(2)}
-                    </button>
-                  </div>
-                </div>
-              </div>
+  return (
+    <div>
+      <div className="bg-white-100 flex w-auto mt-10 mx-72 text-black">
+        <div className="w-55">
+          <div className="mt-4">
+            <div style={{ position: 'relative', height: '120px' }}>
+              <TextPressure
+                text="Battle_Royale!"
+                flex={false}
+                alpha={false}
+                stroke={false}
+                width={true}
+                weight={false}
+                italic={true}
+                scale={false}
+                textColor="#"
+                strokeColor="#ff0000"
+                minFontSize={36}
+              />
             </div>
-    
-            <div className="h-[400px] m-4 p-2">
-              <strong>About:</strong> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Tempore perferendis omnis expedita, labore debitis fugit dignissimos laborum esse quam corporis porro, ipsa adipisci, alias totam dolorem saepe itaque sapiente unde.
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-4 p-4">
+            <div className="flex-1">
+              <Integration/>
+
+              <div className="max-w-5xl p-4">
+                <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50">
+                  <div className="flex-shrink-0">
+                    <div className="w-16 h-16 rounded-full bg-blue-100 overflow-hidden flex items-center justify-center" />
+                  </div>
+
+                  <div className="flex-grow">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">Content Creator 1</h3>
+                        <p className="text-sm text-gray-500">100k followers</p>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+                          <Heart className="w-4 h-4" /> Follow
+                        </button>
+
+                        {error && <p className="text-red-500">{error}</p>}
+                        
+                        <button 
+                          onClick={() => sendTransaction(1)}
+                          disabled={isLoading || hasBetPlaced}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
+                            ${selectedBot === 1 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+                            text-white 
+                            ${(isLoading || hasBetPlaced) && selectedBot !== 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <DollarSign className="w-4 h-4" />
+                          {getBetButtonText(1)}
+                        </button>
+
+                        <button 
+                          onClick={() => sendTransaction(2)}
+                          disabled={isLoading || hasBetPlaced}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
+                            ${selectedBot === 2 ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+                            text-white 
+                            ${(isLoading || hasBetPlaced) && selectedBot !== 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <DollarSign className="w-4 h-4" />
+                          {getBetButtonText(2)}
+                        </button>
+
+                        {/* Add error display */}
+                        {error && (
+                          <div className="mt-2 text-red-500">
+                            {error}
+                          </div>
+                        )}
+
+                        {/* Add transaction hash display */}
+                        {txHash && (
+                          <div className="mt-2 text-green-500">
+                            Transaction submitted: {txHash}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="h-[400px] m-4 p-2">
+                  <strong>About:</strong> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Tempore perferendis omnis expedita, labore debitis fugit dignissimos laborum esse quam corporis porro, ipsa adipisci, alias totam dolorem saepe itaque sapiente unde.
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <div className="w-1/4">
+          <LiveChat />
+        </div>
       </div>
     </div>
-    <div className="w-1/4 ">
-   <LiveChat/>
-    </div>
-   </div>
-</div>    
-    );
-  }
+  );
+}
   
