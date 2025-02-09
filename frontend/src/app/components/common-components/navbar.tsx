@@ -8,7 +8,7 @@ import Button from "./button";
 
 const Navbar = ({ user, display, logout, setDisplay }) => {
   return (
-    <nav className="py-3 px-5 shadow-md fixed top-0 left-0 w-full z-10 h-[4.5 rem] backdrop-blur-2xl">
+    <nav className="py-3 px-5 shadow-md fixed top-0 left-0 w-full z-10 h-[4.5 rem] backdrop-blur-2xl z-100">
       <div className="flex items-center w-full px-4 justify-between">
         <div>
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
