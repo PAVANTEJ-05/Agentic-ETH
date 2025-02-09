@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   try {
     const privy = new PrivyClient(process.env.NEXT_PUBLIC_PRIVY_APP_ID || "a", process.env.NEXT_PUBLIC_APP_SECRET || 'b');
     
-    const {walletId, amount} = await req.json();
+    const {walletId, amount, to} = await req.json();
     // if ( !to || !amount) {
     //   return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     // }
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       caip2: 'eip155:84532',
       params: {
         transaction: {
-          to: '0x34040646ba5166C6Df72Eb82d754AcF9EaCe5724',
+          to: to,
           value: `0x${money}`,
           chainId: 84532,
         },
