@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MessageCircle, AlertCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface APIMessage {
@@ -34,7 +33,7 @@ type Character = "musk" | "tate";
 
 const API_URL = "https://autonome.alt.technology/kaleshai-vmyjuu/message";
 const POLLING_INTERVAL = 15000;
-
+const DEBATE_DURATION = 180000;
 const TIMER_INTERVAL = 1000;
 
 const Integration: React.FC = () => {
@@ -56,13 +55,48 @@ const Integration: React.FC = () => {
   const debateIdRef = useRef<string | null>(null);
   const debateStatusRef = useRef<string | null>(null);
   const lastCharacterRef = useRef<Character | null>(null);
+  const [debateEnded, setDebateEnded] = useState(false);
+  const debateTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateLocalTimer = useCallback(() => {
     setTimeRemaining((prev) => {
-      if (prev === null || prev <= 0) return 0;
+      if (prev === null || prev <= 0) {
+        if (!debateEnded) {
+          setDebateEnded(true);
+          // Clear all intervals when timer reaches 0
+          if (messagePollingRef.current)
+            clearInterval(messagePollingRef.current);
+          if (timerRef.current) clearInterval(timerRef.current);
+          // Fetch the result with retry logic
+          fetchEvaluation();
+        }
+        return 0;
+      }
       return prev - 1000;
     });
-  }, []);
+  }, [debateEnded]);
+
+  const fetchEvaluation = async () => {
+    try {
+      // Add a small delay to ensure the debate has been processed
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const res = await fetch(
+        `https://autonome.alt.technology/kaleshai-vmyjuu/battles/${debateIdRef.current}/evaluation`
+      );
+      const data = await res.json();
+      if (data.evaluation) {
+        setResult(data.evaluation);
+      } else {
+        // If no evaluation yet, retry after a short delay
+        setTimeout(fetchEvaluation, 2000);
+      }
+    } catch (error) {
+      console.error("Error fetching evaluation:", error);
+      // Retry on error
+      setTimeout(fetchEvaluation, 2000);
+    }
+  };
 
   const makeApiRequest = async (url: string, options: RequestInit) => {
     try {
@@ -202,44 +236,46 @@ const Integration: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    //lastCharacterRef.current = "musk";
-    initializeDebate();
-    //handleRestartDebate();
-
-    return () => {
-      if (messagePollingRef.current) clearInterval(messagePollingRef.current);
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
   const startPollingAndTimer = useCallback(() => {
     // Clear existing intervals if any
     if (messagePollingRef.current) clearInterval(messagePollingRef.current);
     if (timerRef.current) clearInterval(timerRef.current);
+    if (debateTimerRef.current) clearTimeout(debateTimerRef.current);
+
+    setDebateEnded(false); // Reset debate ended state
+    setResult(""); // Reset result
+    setTimeRemaining(DEBATE_DURATION);
 
     // Start message polling
     messagePollingRef.current = setInterval(async () => {
-      console.log("calling poll debate");
-      await pollDebateStatus();
+      if (!debateEnded) {
+        await pollDebateStatus();
+      }
     }, POLLING_INTERVAL);
 
     // Start local timer
     timerRef.current = setInterval(() => {
       updateLocalTimer();
     }, TIMER_INTERVAL);
-  }, [pollDebateStatus, updateLocalTimer]);
 
-  const handleRestartDebate = async (): Promise<void> => {
-    setMessages([]);
-    setDebateId(null);
-    setLastCharacter(null);
-    setTimeRemaining(null);
-    setDebateStatus(null);
-    setError(null);
+    // Set timeout to end debate after DEBATE_DURATION
+    debateTimerRef.current = setTimeout(() => {
+      setDebateEnded(true);
+      if (messagePollingRef.current) clearInterval(messagePollingRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+      fetchEvaluation();
+    }, DEBATE_DURATION);
+  }, [pollDebateStatus, updateLocalTimer, debateEnded]);
 
-    await initializeDebate();
-  };
+  useEffect(() => {
+    initializeDebate();
+
+    return () => {
+      if (messagePollingRef.current) clearInterval(messagePollingRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (debateTimerRef.current) clearTimeout(debateTimerRef.current);
+    };
+  }, []);
 
   const getCharacterDisplayName = (character: Character): string => {
     return character === "musk" ? "Elon Musk" : "Andrew Tate";
@@ -251,19 +287,6 @@ const Integration: React.FC = () => {
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      async function fetchEvaluation() {
-        const res = await fetch(
-          `https://autonome.alt.technology/kaleshai-vmyjuu/battles/${debateIdRef.current}/evaluation`
-        );
-        const data = await res.json();
-        setResult(data.evaluation);
-      }
-      fetchEvaluation();
-    }, 185000);
-  }, []);
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -279,10 +302,11 @@ const Integration: React.FC = () => {
           </div>
         </div>
 
-        {debateStatus === "completed" && (
+        {debateEnded && (
           <Alert className="mb-4">
             <AlertDescription>
-              Debate has ended! Click Restart Debate to begin a new one.
+              Debate has ended!{" "}
+              {result && <div className="mt-2">Result: {result}</div>}
             </AlertDescription>
           </Alert>
         )}
