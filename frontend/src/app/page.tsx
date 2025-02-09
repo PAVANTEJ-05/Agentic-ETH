@@ -7,6 +7,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useState } from "react";
 import Individual from "./components/individual";
 import Navbar from "./components/common-components/navbar";
+import { VortexDemo } from "./components/ui/final_vortex";
 
 export default function Home() {
   const { login, logout, user, ready } = usePrivy();
@@ -28,9 +29,11 @@ export default function Home() {
         <Live />
         <Category />
         <hr className="border-black" />
-        {categories.map((categorie,index) => (
-          <Individual label={categorie} key={index}/>
+        {categories.map((categorie, index) => (
+          <Individual label={categorie} key={index} />
         ))}
+
+        <VortexDemo />
       </div>
     </div>
   );
