@@ -1,7 +1,7 @@
 // app/api/rooms/all/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getAllRooms, connectDB } from "@/db/mongodb";
-import { IRoom } from "@/db/models/Room";
+import { getAllRooms, connectDB } from "@/lib/db/mongodb";
+import { IRoom } from "@/lib/db/models/Room";
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error in /api/rooms/all:", error);
+    console.error("Error in /api/rooms/all:  hiha   ", error);
 
     // Check if it's a connection error
     if (error instanceof Error && error.message.includes("ECONNREFUSED")) {
