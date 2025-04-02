@@ -1,540 +1,444 @@
 "use client";
-import { useState } from "react";
-import { Heart, DollarSign } from "lucide-react";
-import TextPressure from "@/app/components/textPressure";
-import LiveChat from "@/app/components/liveChat";
+import { useEffect, useState, useRef } from "react";
+import { Heart, DollarSign, Wallet, Info, ChevronDown, MessageCircle } from "lucide-react";
+import TextPressure from "@/components/hard-ui/textPressure";
+import GlitchText from "../../../components/ui/glitchText"
+import FuzzyText from "../../../components/ui/fuzzy"
+import LiveChat from "@/components/battle-royale/liveChat";
 import { useParams } from "next/navigation";
-<<<<<<< HEAD
-import { getRoomById } from "@/db/mongodb";
-=======
-import contractABI from "../contract_abi";
-
->>>>>>> origin
-
-// Import ethers directly from the browser-compatible package
+import { IRoom } from "@/lib/db/models/Room";
 import { ethers } from "ethers";
-import Integration from "@/app/integration/start";
+import Integration from "@/components/battle-royale/start";
+import { contractABI } from "@/lib/utils/constants/room";
+import { usePrivy } from "@privy-io/react-auth";
+import Navbar from "@/components/common-components/navbar";
+import toast from "react-hot-toast";
 
 export default function BattleRoyale() {
+  const { login, logout, user, ready } = usePrivy();
+  const [display, setDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [hasBetPlaced, setHasBetPlaced] = useState(false);
   const [selectedBot, setSelectedBot] = useState<string | number>("");
   const [txHash, setTxHash] = useState("");
+  const [contractAddress, setContractAddress] = useState<string | null>(null);
+  const [room, setRoom] = useState<IRoom>();
+  const [amount, setAmount] = useState("");
+  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
+  const [userAddress, setUserAddress] = useState<string | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [isChatVisible, setIsChatVisible] = useState(true);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [duration, setDuration] = useState<string | undefined>(undefined);
+  const [bot1, setBot1] =useState<string | undefined>(undefined)
+  const [bot2, setBot2] = useState<string | undefined>(undefined)
 
   const params = useParams();
-  const roomId = params.id; // The dynamic route parameter
+  const roomId = params.id;
 
-  if (typeof roomId === "string") {
-    const fight = "";
-    console.log(fight);
-  } else {
-    console.error("Invalid roomId:", roomId);
-  }
+  useEffect(() => {
+    if (typeof roomId === 'string') {
+      console.log("Room Id: ", roomId);
+      fetchData(roomId);
+    } else {
+      console.error('Invalid roomId:', roomId);
+    }
 
-  const contractAddress = "0x97490eb90f2be6d6cbaf75951105ff1113779669";
-<<<<<<< HEAD
-  const contractABI = [
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "_duration",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "nonpayable",
-      type: "constructor",
-    },
-    {
-      inputs: [
-        {
-          internalType: "address",
-          name: "owner",
-          type: "address",
-        },
-      ],
-      name: "OwnableInvalidOwner",
-      type: "error",
-    },
-    {
-      inputs: [
-        {
-          internalType: "address",
-          name: "account",
-          type: "address",
-        },
-      ],
-      name: "OwnableUnauthorizedAccount",
-      type: "error",
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: "address",
-          name: "bettor",
-          type: "address",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "amount",
-          type: "uint256",
-        },
-        {
-          indexed: false,
-          internalType: "uint8",
-          name: "personality",
-          type: "uint8",
-        },
-      ],
-      name: "BetPlaced",
-      type: "event",
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: "address",
-          name: "deployed_address",
-          type: "address",
-        },
-        {
-          indexed: true,
-          internalType: "address",
-          name: "creator",
-          type: "address",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "startTime",
-          type: "uint256",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "endTime",
-          type: "uint256",
-        },
-      ],
-      name: "FightCreated",
-      type: "event",
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: "uint8",
-          name: "winner",
-          type: "uint8",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "totalPool",
-          type: "uint256",
-        },
-      ],
-      name: "FightFinalized",
-      type: "event",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint8",
-          name: "winningPersonality",
-          type: "uint8",
-        },
-      ],
-      name: "finalizeFight",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: "address",
-          name: "previousOwner",
-          type: "address",
-        },
-        {
-          indexed: true,
-          internalType: "address",
-          name: "newOwner",
-          type: "address",
-        },
-      ],
-      name: "OwnershipTransferred",
-      type: "event",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint8",
-          name: "personality",
-          type: "uint8",
-        },
-      ],
-      name: "placeBet",
-      outputs: [],
-      stateMutability: "payable",
-      type: "function",
-    },
-    {
-      inputs: [],
-      name: "renounceOwnership",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "address",
-          name: "newOwner",
-          type: "address",
-        },
-      ],
-      name: "transferOwnership",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: "address",
-          name: "bettor",
-          type: "address",
-        },
-        {
-          indexed: false,
-          internalType: "uint256",
-          name: "amount",
-          type: "uint256",
-        },
-      ],
-      name: "UserPaid",
-      type: "event",
-    },
-    {
-      inputs: [],
-      name: "withdrawPlatformFees",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      inputs: [],
-      name: "currentFight",
-      outputs: [
-        {
-          internalType: "address",
-          name: "roomCreator",
-          type: "address",
-        },
-        {
-          internalType: "uint256",
-          name: "startTime",
-          type: "uint256",
-        },
-        {
-          internalType: "uint256",
-          name: "endTime",
-          type: "uint256",
-        },
-        {
-          internalType: "bool",
-          name: "isActive",
-          type: "bool",
-        },
-        {
-          internalType: "bool",
-          name: "isFinalized",
-          type: "bool",
-        },
-        {
-          internalType: "uint8",
-          name: "winner",
-          type: "uint8",
-        },
-        {
-          internalType: "uint256",
-          name: "totalPool",
-          type: "uint256",
-        },
-        {
-          internalType: "uint256",
-          name: "betAmountBot1",
-          type: "uint256",
-        },
-        {
-          internalType: "uint256",
-          name: "betAmountBot2",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [],
-      name: "MIN_BET_AMOUNT",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [],
-      name: "owner",
-      outputs: [
-        {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [],
-      name: "PLATFORM_FEE",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [],
-      name: "platformFeesAccumulated",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-  ];
+    connectWallet();
+  }, [roomId]);
 
-  //   async function placeBet(personality: 1 | 2, betAmount: string) {
-  //     setIsLoading(true);
-  //     setError("");
-
-  //     try {
-  //       // Instead of using Privy server-auth, make an API call to your backend
-  //       const response = await fetch('/api/place-bet', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({ personality, betAmount }),
-  // });
-
-  //'0x97490eb90f2be6d6cbaf75951105ff1113779669'
-
-  // if (!response.ok) {
-  //   throw new Error(`Failed to place bet`);
-  // }
-
-  //       const data = await response.json();
-  //       setTxHash(data.txHash);
-  //       setHasBetPlaced(true);
-  //       setSelectedBot(personality);
-  //     } catch (err) {
-  //       setError(err instanceof Error ? err.message : 'Failed to place bet');
-  //       console.error("Error placing bet:", err);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   }
-=======
->>>>>>> origin
-
-  async function sendTransaction(botNumber: number) {
+  const fetchData = async (roomId: string) => {
+    setIsLoading(true);
     try {
-      const contractInterface = new ethers.utils.Interface(contractABI);
-      const metaData = contractInterface.encodeFunctionData("placeBet", [
-        botNumber,
-      ]);
-
-      const response = await fetch("/api/send-transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          metaData: metaData,
-          to: contractAddress, // Replace with recipient address
-          amount: ethers.utils.parseEther("0.00025").toString(), // Amount in ETH
-        }),
+      const response = await fetch(`/api/rooms/id/${roomId}`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      const data = await response.json();
-      console.log("trnx successful ", data.txHash);
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Room not found');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      if (response.ok) {
-        setTxHash(data.txHash);
-      } else {
-        console.log(data.error);
-        alert("Error: " + data.error);
+      const room = await response.json();
+      console.log("Fetched room data:", room);
+      setContractAddress(room.contractAddress);
+      setRoom(room);
+    } catch (error) {
+      console.error("Error fetching room:", error);
+      setError(error instanceof Error ? error.message : "Failed to load room");
+      setRoom(undefined);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Connect MetaMask wallet
+  const connectWallet = async () => {
+    if (typeof window.ethereum === "undefined") {
+      setError("Please install MetaMask to continue.");
+      return;
+    }
+
+    try {
+      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setUserAddress(accounts[0]);
+      setProvider(web3Provider);
+      setError("");
+      toast.success("Wallet connected successfully!");
+    } catch (error) {
+      console.error("Error connecting to MetaMask:", error);
+      setError("Failed to connect wallet. Please try again.");
+      toast.error("Failed to connect wallet");
+    }
+  };
+
+  async function sendTransaction(botNumber: number) {
+    if (!provider || !userAddress) {
+      toast.error("Wallet not connected");
+      throw new Error("Wallet not connected");
+    }
+
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    setSelectedBot(botNumber);
+    
+    try {
+      setIsLoading(true);
+      const signer = provider.getSigner();
+
+      if (contractAddress) {
+        const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        try {
+          toast.loading("Placing bet...");
+          const tx = await contract.placeBet(botNumber, {
+            value: ethers.utils.parseEther(amount) // Convert ETH to wei
+          });
+
+          setTxHash(tx.hash);
+          toast.loading("Transaction pending...");
+          
+          await tx.wait(); // Wait for the transaction to be confirmed
+          console.log("Transaction Hash:", tx.hash);
+          toast.success(`Bet placed on Bot ${botNumber}!`);
+          setAmount("");
+
+          const txx = await contract.currentFight()
+
+          const time = new Date(txx[2] * 1000).toLocaleString();
+          setDuration(time);
+          setBot1(ethers.utils.formatEther(txx[7]));
+          setBot2(ethers.utils.formatEther(txx[8]));
+
+          console.log("currentFight ", txx)
+        } catch (error) {
+          console.error("Transaction failed:", error);
+          toast.error("Transaction failed. Please try again.");
+        }
+        return contract.address;
       }
     } catch (error) {
-      console.error("Network error:", error);
-      alert("Network error");
+      console.error("Transaction initiation failed:", error);
+      toast.error("Failed to initiate transaction");
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   }
 
-  const getBetButtonText = (botNumber: number) => {
-    if (isLoading) return "Placing Bet...";
-    if (hasBetPlaced) {
-      if (selectedBot === botNumber) return `Bet Placed on Bot ${botNumber}`;
-      return `Bet Closed`;
+  async function getDuration(){
+    if (!provider || !userAddress) {
+      toast.error("Wallet not connected");
+      throw new Error("Wallet not connected");
     }
-    return `Bet on Bot ${botNumber}`;
+
+    try {
+      const signer = provider.getSigner();
+      if(contractAddress){
+        const contract = new ethers.Contract(contractAddress, contractABI, signer)
+        const tx = await contract.currentFight()
+        setDuration(tx[2]);
+        setBot1(tx[7]);
+        setBot2(tx[8]);
+        try {
+          
+        } catch (error) {
+          console.error("Contract address not found", error)
+        }
+      }
+      
+    } catch (error) {
+      console.error("Error in getDuration ", error)
+    }
+  }
+
+  const toggleChatExpansion = () => {
+    setIsChatExpanded(!isChatExpanded);
+  };
+
+  const toggleChatVisibility = () => {
+    setIsChatVisible(!isChatVisible);
   };
 
   return (
-    <div>
-      <div className="bg-white-100 flex w-auto mt-10 mx-72 text-black">
-        <div className="w-55">
-          <div className="mt-4">
-            <div style={{ position: "relative", height: "120px" }}>
-              <TextPressure
-                text="Battle_Royale!"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={true}
-                weight={false}
-                italic={true}
-                scale={false}
-                textColor="#"
-                strokeColor="#ff0000"
-                minFontSize={36}
-              />
+    <div className="min-h-screen min-w-2.5 relative overflow-hidden">
+      {/* Funky Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Gradient base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 opacity-90"></div>
+        
+        {/* Animated circles */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-6000"></div>
+        
+        {/* Grid overlay */}
+        <div className="absolute inset-0 bg-grid-white/10 bg-grid-16 z-10 opacity-20"></div>
+        
+        {/* Cyber pattern */}
+        <div className="absolute inset-0 z-20">
+          <div className="absolute top-1/4 left-1/4 h-32 w-32 border-4 border-blue-400 opacity-20 rotate-45"></div>
+          <div className="absolute top-1/2 right-1/3 h-48 w-48 border-4 border-pink-400 opacity-20 rotate-12"></div>
+          <div className="absolute bottom-1/3 left-1/2 h-24 w-24 border-4 border-yellow-400 opacity-20 -rotate-12"></div>
+          <div className="absolute bottom-1/4 right-1/4 h-40 w-40 border-4 border-purple-400 opacity-20 rotate-45"></div>
+        </div>
+      </div>
+
+      <Navbar
+        user={user}
+        setDisplay={setDisplay}
+        logout={logout}
+        display={display}
+      />
+
+      <div className="container px-4 mx-auto relative z-10">
+        {/* Mobile chat toggle button */}
+        <button 
+          onClick={toggleChatVisibility}
+          className="fixed bottom-20 right-6 z-20 md:hidden bg-purple-700 text-white p-3 rounded-full shadow-lg"
+        >
+          <MessageCircle size={24} />
+        </button>
+
+        <div className="flex flex-col md:flex-row gap-6 mt-24 mb-12 relative">
+          {/* Main content area */}
+          <div 
+            className={`transition-all duration-300 ease-in-out flex-1 ${
+              isChatExpanded ? 'md:w-3/5 md:pr-4' : 'md:w-3/4'
+            } ${
+              isChatVisible && isChatExpanded ? 'md:order-1' : ''
+            }`}
+            style={{
+              width: isChatVisible 
+                ? (isChatExpanded ? 'calc(100% - 35%)' : 'calc(100% - 25%)') 
+                : '100%'
+            }}
+          >
+            {/* Header with animated text */}
+            <div className="mb-8">
+              <div  className="mx-auto h-40 "> {/* style={{ position: "relative", height: "150px" } } */}
+                <FuzzyText 
+                  baseIntensity={0.15} 
+                  hoverIntensity= {0.69}
+                  enableHover={true}
+                >
+                  Battle Royale!
+                </FuzzyText>
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col md:flex-row gap-4 p-4">
-            <div className="flex-1">
-              <Integration />
+            {/* Error display */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-900/70 backdrop-blur-sm border border-red-500 rounded-lg text-red-100">
+                <p className="flex items-center gap-2"><Info size={18} /> {error}</p>
+              </div>
+            )}
 
-              <div className="max-w-5xl p-4">
-                <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50">
-                  <div className="flex-shrink-0">
-                    <div className="w-16 h-16 rounded-full bg-blue-100 overflow-hidden flex items-center justify-center" />
-                  </div>
+            {/* Transaction status */}
+            {txHash && (
+              <div className="mb-6 p-4 bg-green-900/70 backdrop-blur-sm border border-green-500 rounded-lg text-green-100">
+                <p className="flex items-center gap-2">
+                  <Info size={18} /> Transaction submitted: 
+                  <a 
+                    href={`https://etherscan.io/tx/${txHash}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="underline hover:text-green-300 ml-1"
+                  >
+                    {txHash.slice(0, 10)}...{txHash.slice(-8)}
+                  </a>
+                </p>
+              </div>
+            )}
 
-                  <div className="flex-grow">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          Content Creator 1
-                        </h3>
-                        <p className="text-sm text-gray-500">100k followers</p>
+            {/* Battle area */}
+            <div className="bg-gray-900/70 backdrop-blur-md shadow-lg rounded-xl overflow-hidden mb-8 border border-purple-500/30">
+              <div className="border-b border-purple-500/30 p-6">
+                <h2 className="text-2xl font-bold text-white">Battle Arena</h2>
+                <p className="text-purple-200 mt-1">Watch bots compete and place your bets!</p>
+              </div>
+              
+              <div className="p-6">
+                <Integration />
+              </div>
+            </div>
+
+            {/* Creator profiles and betting section */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {[1, 2].map((botNumber) => (
+                <div key={botNumber} className="bg-gray-900/70 backdrop-blur-md shadow-lg rounded-xl overflow-hidden border border-blue-500/30">
+                  <div className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 overflow-hidden flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/20">
+                          {`B${botNumber}`}
+                        </div>
                       </div>
 
-                      <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
-                          <Heart className="w-4 h-4" /> Follow
-                        </button>
-
-                        {error && <p className="text-red-500">{error}</p>}
-
-                        <button
-                          onClick={() => sendTransaction(1)}
-                          disabled={isLoading || hasBetPlaced}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
-                            ${
-                              selectedBot === 1
-                                ? "bg-green-600 hover:bg-green-700"
-                                : "bg-red-600 hover:bg-red-700"
-                            }
-                            text-white 
-                            ${
-                              (isLoading || hasBetPlaced) && selectedBot !== 1
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}
-                        >
-                          <DollarSign className="w-4 h-4" />
-                          {getBetButtonText(1)}
-                        </button>
-
-                        <button
-                          onClick={() => sendTransaction(2)}
-                          disabled={isLoading || hasBetPlaced}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors
-                            ${
-                              selectedBot === 2
-                                ? "bg-green-600 hover:bg-green-700"
-                                : "bg-red-600 hover:bg-red-700"
-                            }
-                            text-white 
-                            ${
-                              (isLoading || hasBetPlaced) && selectedBot !== 2
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}
-                        >
-                          <DollarSign className="w-4 h-4" />
-                          {getBetButtonText(2)}
-                        </button>
-
-                        {/* Add error display */}
-                        {error && (
-                          <div className="mt-2 text-red-500">{error}</div>
-                        )}
-
-                        {/* Add transaction hash display */}
-                        {txHash && (
-                          <div className="mt-2 text-green-500">
-                            Transaction submitted: {txHash}
+                      <div className="flex-grow">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">Bot {botNumber}</h3>
+                            <p className="text-sm text-blue-300">Win rate: 68%</p>
                           </div>
-                        )}
+
+                          <button 
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors self-start shadow-lg shadow-blue-600/20"
+                          >
+                            <Heart className="w-4 h-4" /> Follow
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <button 
+                        onClick={() => setShowDetails(!showDetails)}
+                        className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        {showDetails ? "Hide" : "Show"} details
+                        <ChevronDown 
+                          className={`w-4 h-4 transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`} 
+                        />
+                      </button>
+                      
+                      {showDetails && (
+                        <div className="mt-4 text-sm text-blue-200 bg-blue-900/50 p-4 rounded-lg border border-blue-500/20">
+                          <p>
+                            Bot {botNumber} specializes in strategic gameplay with a focus on resource management.
+                            It has won 68 out of 100 matches and is currently on a 5-game winning streak.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-6 border-t border-blue-500/30 pt-6">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2">
+                          <label htmlFor={`amount-${botNumber}`} className="text-sm font-medium text-blue-200">
+                            Bet Amount (ETH)
+                          </label>
+                          <input
+                            id={`amount-${botNumber}`}
+                            type="text"
+                            value={amount}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9.]/g, "");
+                              setAmount(value);
+                            }}
+                            placeholder="0.05"
+                            className="px-4 py-2 border border-blue-500/30 bg-blue-900/30 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-white"
+                          />
+                        </div>
+                        
+                        <button
+                          onClick={() => sendTransaction(botNumber)}
+                          disabled={isLoading}
+                          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-colors
+                            ${selectedBot === botNumber ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"}
+                            text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20
+                          `}
+                        >
+                          {isLoading && selectedBot === botNumber ? (
+                            <>Processing...</>
+                          ) : (
+                            <>
+                              <DollarSign className="w-5 h-5" />
+                              Bet on Bot {botNumber}
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <div className="h-[400px] m-4 p-2">
-                  <strong>About:</strong> Lorem ipsum dolor sit, amet
-                  consectetur adipisicing elit. Tempore perferendis omnis
-                  expedita, labore debitis fugit dignissimos laborum esse quam
-                  corporis porro, ipsa adipisci, alias totam dolorem saepe
-                  itaque sapiente unde.
+            {/* About section */}
+            <div className="bg-gray-900/70 backdrop-blur-md shadow-lg rounded-xl overflow-hidden mb-8 border border-pink-500/30">
+              <div className="border-b border-pink-500/30 p-6">
+                <h2 className="text-2xl font-bold text-white">About This Battle</h2>
+              </div>
+              
+              <div className="p-6">
+                <p className="text-pink-200 leading-relaxed">
+                  This is an AI-powered battle royale where two sophisticated bots compete against each other.
+                  Players can place bets on which bot they think will win, with all transactions secured on the blockchain.
+                  The battle system uses advanced algorithms to ensure fair and exciting competitions.
+                </p>
+                
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-blue-900/50 rounded-lg border border-blue-500/30">
+                    <h3 className="font-semibold text-blue-300 mb-2">Duration</h3>
+                    <p className="text-2xl font-bold text-white">{ duration || "0.00"}</p>
+                  </div>
+                  
+                  <div className="p-4 bg-green-900/50 rounded-lg border border-green-500/30">
+                    <h3 className="font-semibold text-green-300 mb-2">Bot 1</h3>
+                    <p className="text-2xl font-bold text-white">{bot1 || 0.0}</p>
+                  </div>
+                  
+                  <div className="p-4 bg-purple-900/50 rounded-lg border border-purple-500/30">
+                    <h3 className="font-semibold text-purple-300 mb-2">Bot2</h3>
+                    <p className="text-2xl font-bold text-white">{bot2 || 0.0}</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Chat sidebar */}
+          {isChatVisible && (
+            <LiveChat />
+          )}
         </div>
-        <div className="w-1/4">
-          <LiveChat />
+      </div>
+      
+      {/* Wallet connection status */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-lg backdrop-blur-md border ${userAddress ? 'bg-green-900/70 text-white border-green-500/50' : 'bg-gray-900/70 text-white border-purple-500/50'}`}>
+          <Wallet size={18} />
+          {userAddress ? (
+            <span>Connected: {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
+          ) : (
+            <button onClick={connectWallet}>Connect Wallet</button>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
