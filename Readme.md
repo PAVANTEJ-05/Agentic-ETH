@@ -82,6 +82,8 @@ On the homepage, explore live battle rooms sorted by categories, manage your wal
    - The Solidity-based smart contract on Arbitrum ensures fast and cost-effective transactions.
 
 ---
+![image](https://github.com/user-attachments/assets/f46ebf48-b655-4aaa-9b2e-33f1fe5db837)
+
 
 ## Getting Started  ⚙️
 
